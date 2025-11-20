@@ -25,9 +25,7 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
 
     const bomGroups: { [key: string]: BOMItem[] } = {};
     state.currentProject.bom.forEach((item) => {
-      if (!bomGroups[item.category]) {
-        bomGroups[item.category] = [];
-      }
+      if (!bomGroups[item.category]) bomGroups[item.category] = [];
       bomGroups[item.category].push(item);
     });
 
@@ -39,7 +37,8 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
           v.categories.some((cat) => cat.includes(category.split(" ")[0]))
         ),
         deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        terms: `Standard payment terms: 30% advance, 70% on delivery. Delivery within 30 days from PO. Quality standards as per IS specifications.`,
+        terms:
+          "Standard payment terms: 30% advance, 70% on delivery. Delivery within 30 days from PO. Quality standards as per IS specifications.",
         status: "draft",
       })
     );
@@ -62,18 +61,19 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
   }, [state.currentProject?.bom, state.currentProject?.vendors]);
 
   return (
-    <Card className="max-w-6xl mx-auto">
-      <CardHeader>
-        <h2 className="text-xl font-bold text-gray-900">
+    <Card className="w-full">
+      <CardHeader className="p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900">
           Phase 6: RFP Generation
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-sm sm:text-base">
           AI-grouped BoM items into optimized RFP packages
         </p>
       </CardHeader>
 
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+      <CardContent className="p-3 sm:p-6">
+        {/* RFP Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
           {rfps.map((rfp) => (
             <Card
               key={rfp.id}
@@ -82,7 +82,7 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center">
                   <Package className="h-5 w-5 text-blue-600 mr-2" />
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">
                     {rfp.bomItems[0]?.category}
                   </h3>
                 </div>
@@ -91,8 +91,9 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
                 </span>
               </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
+              {/* Stats */}
+              <div className="space-y-2 mb-4 text-sm">
+                <div className="flex justify-between">
                   <span className="text-gray-600">Total Value:</span>
                   <span className="font-semibold">
                     {formatCurrency(
@@ -103,13 +104,13 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between">
                   <span className="text-gray-600">Vendors:</span>
                   <span className="font-semibold">
                     {rfp.vendors.length} qualified
                   </span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between">
                   <span className="text-gray-600">Deadline:</span>
                   <span className="font-semibold">
                     {new Date(rfp.deadline).toLocaleDateString()}
@@ -117,13 +118,14 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
                 </div>
               </div>
 
+              {/* Items */}
               <div className="border-t pt-3">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">
+                <h4 className="text-sm font-medium text-gray-700 mb-1">
                   Items Included:
                 </h4>
-                <div className="space-y-1">
+                <div className="space-y-1 text-xs">
                   {rfp.bomItems.slice(0, 3).map((item) => (
-                    <div key={item.id} className="flex justify-between text-xs">
+                    <div key={item.id} className="flex justify-between">
                       <span className="text-gray-600 truncate">
                         {item.material}
                       </span>
@@ -133,8 +135,8 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
                     </div>
                   ))}
                   {rfp.bomItems.length > 3 && (
-                    <div className="text-xs text-gray-500">
-                      +{rfp.bomItems.length - 3} more items
+                    <div className="text-gray-500">
+                      +{rfp.bomItems.length - 3} more
                     </div>
                   )}
                 </div>
@@ -143,15 +145,16 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
           ))}
         </div>
 
+        {/* AI Summary */}
         {rfps.length > 0 && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
             <div className="flex items-center">
               <FileText className="h-5 w-5 text-green-600 mr-3" />
               <div>
-                <h4 className="font-semibold text-green-900">
+                <h4 className="font-semibold text-green-900 text-sm sm:text-base">
                   RFP Generation Complete
                 </h4>
-                <p className="text-sm text-green-700 mt-1">
+                <p className="text-xs sm:text-sm text-green-700 mt-1 leading-relaxed">
                   {rfps.length} RFP packages created, optimized for vendor
                   specialization and competitive bidding. Total value:{" "}
                   {formatCurrency(
@@ -171,11 +174,23 @@ export const RFPGenerator: React.FC<RFPGeneratorProps> = ({
           </div>
         )}
 
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={onPrevious}>
+        {/* Navigation Buttons */}
+        <div className="flex flex-col sm:flex-row justify-between gap-3">
+          <Button
+            variant="outline"
+            onClick={onPrevious}
+            className="w-full sm:w-auto"
+          >
             ← Back
           </Button>
-          <Button onClick={handleApproveRFPs} disabled={rfps.length === 0}>
+
+          <Button
+            onClick={handleApproveRFPs}
+            disabled={rfps.length === 0}
+            className={`w-full sm:w-auto ${
+              rfps.length === 0 ? "opacity-60 cursor-not-allowed" : ""
+            }`}
+          >
             Start Vendor Outreach →
           </Button>
         </div>

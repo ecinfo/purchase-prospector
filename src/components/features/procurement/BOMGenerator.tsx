@@ -13,6 +13,7 @@ interface BOMGeneratorProps {
 }
 
 const sampleBOM: BOMItem[] = [
+  // same sample items...
   {
     id: "1",
     category: "Cement & Concrete",
@@ -85,78 +86,77 @@ export const BOMGenerator: React.FC<BOMGeneratorProps> = ({
   const totalCost = calculateBOMTotal(bom);
 
   return (
-    <Card className="max-w-6xl mx-auto">
-      <CardHeader>
-        <div className="flex justify-between items-start">
+    <Card className="w-full">
+      {/* Header */}
+      <CardHeader className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
-              Phase 4: Bill of Materials
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+              Phase 4: Bill of Materials (BoM)
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-sm sm:text-base">
               AI-generated procurement list with specifications
             </p>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-green-600">
+
+          <div className="text-left sm:text-right">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">
               {formatCurrency(totalCost)}
             </div>
-            <div className="text-sm text-gray-500">Total Estimated Cost</div>
+            <div className="text-xs sm:text-sm text-gray-500">
+              Total Estimated Cost
+            </div>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+      {/* Table */}
+      <CardContent className="p-2 sm:p-4">
+        <div className="overflow-x-auto rounded-lg border border-gray-200">
+          <table className="min-w-[900px] w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50 sticky top-0 z-10">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Material
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Specification
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Quantity
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Unit Price
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total Price
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Priority
-                </th>
+                {[
+                  "Category",
+                  "Material",
+                  "Specification",
+                  "Quantity",
+                  "Unit Price",
+                  "Total Price",
+                  "Priority",
+                ].map((title) => (
+                  <th
+                    key={title}
+                    className="px-4 py-3 text-left text-[11px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >
+                    {title}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+
+            <tbody className="bg-white divide-y divide-gray-200 text-sm">
               {bom.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <tr key={item.id} className="hover:bg-gray-50 transition">
+                  <td className="px-4 py-3 text-gray-900 font-medium">
                     {item.category}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.material}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  <td className="px-4 py-3 text-gray-900">{item.material}</td>
+                  <td className="px-4 py-3 text-gray-500">
                     {item.specification}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-4 py-3 text-gray-900 whitespace-nowrap">
                     {item.quantity.toLocaleString()} {item.unit}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-4 py-3 text-gray-900">
                     {formatCurrency(item.unitPrice)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                  <td className="px-4 py-3 font-semibold text-gray-900">
                     {formatCurrency(item.totalPrice)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 py-3">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      className={`inline-flex px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-full ${
                         item.priority === "high"
                           ? "bg-red-100 text-red-800"
                           : item.priority === "medium"
@@ -173,35 +173,26 @@ export const BOMGenerator: React.FC<BOMGeneratorProps> = ({
           </table>
         </div>
 
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-green-400"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-green-700">
-                <strong>AI Recommendation:</strong> This BoM is optimized for
-                cost and quality. 24 line items generated across 8 categories.
-              </p>
-            </div>
-          </div>
+        {/* AI Recommendation */}
+        <div className="mt-6 p-4 sm:p-5 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-xs sm:text-sm text-green-800 leading-relaxed">
+            <strong>AI Recommendation:</strong> This BoM is optimized for cost
+            and quality. 24 line items generated across 8 categories.
+          </p>
         </div>
 
-        <div className="flex justify-between mt-8">
-          <Button variant="outline" onClick={onPrevious}>
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
+          <Button
+            variant="outline"
+            onClick={onPrevious}
+            className="w-full sm:w-auto"
+          >
             ← Back
           </Button>
-          <Button onClick={handleApproveBOM}>Search Vendors →</Button>
+          <Button onClick={handleApproveBOM} className="w-full sm:w-auto">
+            Search Vendors →
+          </Button>
         </div>
       </CardContent>
     </Card>

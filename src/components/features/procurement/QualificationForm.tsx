@@ -62,6 +62,8 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
   onPrevious,
 }) => {
   const { state, dispatch } = useProcurement();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [answers, setAnswers] = useState<Partial<ProjectRequirement>>(
     state.currentProject?.requirement || {}
   );
@@ -72,6 +74,7 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     const completeAnswers: ProjectRequirement = {
       description: state.currentProject?.requirement.description || "",
@@ -85,33 +88,31 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
       complexity: (answers.complexity as any) || "medium",
     };
 
-    dispatch({
-      type: "UPDATE_REQUIREMENT",
-      payload: completeAnswers,
-    });
+    dispatch({ type: "UPDATE_REQUIREMENT", payload: completeAnswers });
 
     // Simulate AI processing
     setTimeout(() => {
+      setIsSubmitting(false);
       onNext();
-    }, 1500);
+    }, 1200);
   };
 
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardHeader>
-        <h2 className="text-xl font-bold text-gray-900">
+    <Card className="w-full">
+      <CardHeader className="p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900">
           Phase 2: AI Qualification
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-sm sm:text-base">
           Answer these questions to help AI understand your project requirements
         </p>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="p-4 sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {questions.map((q, index) => (
-            <div key={q.id} className="question-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div key={q.id} className="flex flex-col gap-2">
+              <label className="block text-sm sm:text-base font-medium text-gray-800">
                 {index + 1}. {q.question}
               </label>
 
@@ -121,7 +122,7 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
                     (answers[q.id as keyof ProjectRequirement] as string) || ""
                   }
                   onChange={(e) => handleAnswer(q.id, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
                   <option value="">Select an option</option>
@@ -147,16 +148,30 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
                   }
                   placeholder={q.placeholder}
                   required
+                  className="text-sm sm:text-base"
                 />
               )}
             </div>
           ))}
 
-          <div className="flex justify-between pt-6">
-            <Button type="button" variant="outline" onClick={onPrevious}>
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onPrevious}
+              className="w-full sm:w-auto"
+            >
               ← Back
             </Button>
-            <Button type="submit">Generate Specifications →</Button>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto"
+            >
+              {isSubmitting ? "Processing…" : "Generate Specifications →"}
+            </Button>
           </div>
         </form>
       </CardContent>

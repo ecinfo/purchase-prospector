@@ -48,60 +48,69 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
   ];
 
   return (
-    <Card className="max-w-4xl mx-auto">
-      <CardHeader>
-        <h2 className="text-xl font-bold text-gray-900">
+    <Card className="w-full">
+      <CardHeader className="p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900">
           Phase 3: Project Quantification
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-sm sm:text-base">
           AI-generated specifications based on your requirements
         </p>
       </CardHeader>
 
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <CardContent className="p-4 sm:p-6">
+        {/* SPECS GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {specifications.map((spec, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-4">
-              <dt className="text-sm font-medium text-gray-600">
+            <div key={index} className="bg-gray-50 rounded-lg p-3 sm:p-4">
+              <dt className="text-xs sm:text-sm font-medium text-gray-600">
                 {spec.label}
               </dt>
-              <dd className="mt-1 text-lg font-semibold text-gray-900">
+              <dd className="mt-1 text-base sm:text-lg font-semibold text-gray-900">
                 {spec.value}
               </dd>
             </div>
           ))}
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+        {/* AI ANALYSIS */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+          <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-2 sm:mb-3">
             AI Analysis
           </h3>
-          <div className="space-y-2 text-sm text-blue-800">
+          <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-blue-800">
             <p>
               ✅ Based on {formatArea(requirement.area, requirement.areaUnit)}{" "}
               {requirement.type} project in {requirement.location}
             </p>
             <p>
-              ✅ {requirement.complexity} complexity level with{" "}
+              ✅ {requirement.complexity} complexity with a{" "}
               {requirement.timeline}-month timeline
             </p>
             <p>
-              ✅ Estimated project value:{" "}
+              ✅ Estimated project cost:{" "}
               <strong>{formatCurrency(estimatedCost)}</strong>
             </p>
             <p>
-              ✅ Potential savings range: 15-25% (
-              {formatCurrency(estimatedCost * 0.15)} -{" "}
+              ✅ Potential savings: 15–25% (
+              {formatCurrency(estimatedCost * 0.15)} –{" "}
               {formatCurrency(estimatedCost * 0.25)})
             </p>
           </div>
         </div>
 
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={onPrevious}>
+        {/* BUTTONS */}
+        <div className="flex flex-col sm:flex-row justify-between gap-3">
+          <Button
+            variant="outline"
+            onClick={onPrevious}
+            className="w-full sm:w-auto"
+          >
             ← Back
           </Button>
-          <Button onClick={onNext}>Generate Bill of Materials →</Button>
+          <Button onClick={onNext} className="w-full sm:w-auto">
+            Generate Bill of Materials →
+          </Button>
         </div>
       </CardContent>
     </Card>
