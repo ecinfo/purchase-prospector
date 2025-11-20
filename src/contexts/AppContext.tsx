@@ -1,0 +1,76 @@
+// src/contexts/AppContext.tsx
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  type ReactNode,
+} from "react";
+import type { User } from "../types";
+
+interface AppState {
+  user: User | null;
+  isLoading: boolean;
+  theme: "light" | "dark";
+  sidebarOpen: boolean;
+}
+
+type AppAction =
+  | { type: "SET_USER"; payload: User | null }
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_THEME"; payload: "light" | "dark" }
+  | { type: "SET_SIDEBAR_OPEN"; payload: boolean };
+
+interface AppContextType {
+  state: AppState;
+  dispatch: React.Dispatch<AppAction>;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+const initialState: AppState = {
+  user: {
+    id: "1",
+    name: "Rajesh Kumar",
+    email: "rajesh.kumar@construction.com",
+    role: "purchase_manager",
+    avatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+  },
+  isLoading: false,
+  theme: "light",
+  sidebarOpen: true,
+};
+
+function appReducer(state: AppState, action: AppAction): AppState {
+  switch (action.type) {
+    case "SET_USER":
+      return { ...state, user: action.payload };
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
+    case "SET_THEME":
+      return { ...state, theme: action.payload };
+    case "SET_SIDEBAR_OPEN":
+      return { ...state, sidebarOpen: action.payload };
+    default:
+      return state;
+  }
+}
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(appReducer, initialState);
+
+  return (
+    <AppContext.Provider value={{ state, dispatch }}>
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useApp() {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error("useApp must be used within an AppProvider");
+  }
+  return context;
+}
