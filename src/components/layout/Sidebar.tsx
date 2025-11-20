@@ -36,7 +36,7 @@ export const Sidebar: React.FC = () => {
           <div className="flex items-center">
             <Building className="h-8 w-8 text-blue-600" />
             <span className="ml-2 text-xl font-bold text-gray-900">
-              Purchase Prospector
+              Agentic Enterprise Procurement
             </span>
           </div>
           <button
