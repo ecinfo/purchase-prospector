@@ -8,6 +8,7 @@ import { ProcurementWorkflow } from "./components/features/procurement/Procureme
 import { AnalyticsDashboard } from "./components/features/analytics/AnalyticsDashboard";
 import { VendorDirectory } from "./components/features/vendors/VendorDirectory";
 import { Settings } from "./pages/Settings";
+import { HelpSupport } from "./pages/HelpSupport";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
               <Route path="/analytics" element={<AnalyticsDashboard />} />
               <Route path="/vendors" element={<VendorDirectory />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/support" element={<HelpSupport />} />
             </Routes>
           </MainLayout>
         </Router>
