@@ -158,11 +158,6 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const getColorClasses = (color: string) => ({
-    bg: `bg-${color}-100`,
-    text: `text-${color}-600`,
-  });
-
   return (
     <div className="w-full p-4 space-y-6 sm:p-6">
       {/* Header */}

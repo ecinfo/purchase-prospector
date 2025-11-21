@@ -162,8 +162,7 @@ export const PerformanceMetrics: React.FC = () => {
                   width={65}
                 />
                 <Tooltip
-                  formatter={(value: number, name: string, props: any) => {
-                    const fullName = props.payload.fullName;
+                  formatter={(value: number, name: string) => {
                     return [`${value} days`, name];
                   }}
                   labelFormatter={(label, payload) => {

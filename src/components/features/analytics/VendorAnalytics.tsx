@@ -131,7 +131,7 @@ export const VendorAnalytics: React.FC = () => {
                     paddingAngle={2}
                     dataKey="value"
                     label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
+                      `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
                     }
                     labelLine={{ stroke: "#9ca3af", strokeWidth: 1 }}
                   >
