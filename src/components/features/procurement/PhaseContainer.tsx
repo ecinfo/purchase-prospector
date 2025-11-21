@@ -1,15 +1,17 @@
 // src/components/features/procurement/PhaseContainer.tsx
 import React from "react";
-import { RequirementInput } from "./RequirementInput";
 import { QualificationForm } from "./QualificationForm";
 import { QuantificationView } from "./QuantificationView";
-import { BOMGenerator } from "./BOMGenerator";
 import { VendorSearch } from "./VendorSearch";
-import { RFPGenerator } from "./RFPGenerator";
-import { VendorOutreach } from "./VendorOutreach";
-import { BidCollection } from "./BidCollection";
-import { AnalysisReport } from "./AnalysisReport";
 import { useProcurement } from "../../../contexts/ProcurementContext";
+import RequirementInput from "./RequirementInput";
+import BOMGenerator from "./BOMGenerator";
+import RFPGenerator from "./RFPGenerator";
+import VendorOutreach from "./VendorOutreach";
+import BidCollection from "./BidCollection";
+import AuditTrail from "./AuditTrail";
+import AnalysisReport from "./AnalysisReport";
+// import { ProjectCompletion } from "./ProjectCompletion";
 
 interface PhaseContainerProps {
   currentPhase: number;
@@ -45,10 +47,14 @@ export const PhaseContainer: React.FC<PhaseContainerProps> = ({
         return <BidCollection {...phaseProps} />;
       case 9:
         return <AnalysisReport {...phaseProps} />;
+      // case 10:
+      //   return <ProjectCompletion {...phaseProps} />;
+      case 10:
+        return <AuditTrail {...phaseProps} />;
       default:
         return <div>Invalid Phase</div>;
     }
   };
 
-  return <div className="mt-8 fade-in">{renderPhase()}</div>;
+  return <div className="fade-in">{renderPhase()}</div>;
 };

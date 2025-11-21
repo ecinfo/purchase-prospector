@@ -1,241 +1,322 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-// src/components/features/procurement/BidCollection.tsx
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "../../ui/Card";
-import { Button } from "../../ui/Button";
-import { useProcurement } from "../../../contexts/ProcurementContext";
-import { formatCurrency } from "../../../utils/formatters";
-import { Mail, Clock, CheckCircle } from "lucide-react";
-import type { Bid } from "../../../types";
+import { Inbox, CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
 
 interface BidCollectionProps {
-  onNext: () => void;
-  onPrevious: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
 }
 
-export const BidCollection: React.FC<BidCollectionProps> = ({
+interface Bid {
+  id: string;
+  vendor: string;
+  amount: number;
+  timestamp: string;
+  qualityScore: number;
+  deliveryTime: number;
+}
+
+interface PackageBids {
+  name: string;
+  bids: Bid[];
+  totalExpected: number;
+}
+
+const BidCollection: React.FC<BidCollectionProps> = ({
   onNext,
   onPrevious,
 }) => {
-  const { state, dispatch } = useProcurement();
-  const [bids, setBids] = useState<Bid[]>([]);
-  const [daysRemaining, setDaysRemaining] = useState(5);
+  const TOTAL_DAYS = 5;
+  const [currentDay, setCurrentDay] = useState(1);
+  const [daysLeft, setDaysLeft] = useState(TOTAL_DAYS);
+  const [isSimulating, setIsSimulating] = useState(true);
+
+  // Make sure not to mutate state
+  const [packages, setPackages] = useState<PackageBids[]>([
+    { name: "Civil Materials Package", totalExpected: 3, bids: [] },
+    { name: "MEP Systems Package", totalExpected: 3, bids: [] },
+    { name: "Interior Finishing Package", totalExpected: 3, bids: [] },
+    { name: "Amenities & Infrastructure", totalExpected: 3, bids: [] },
+  ]);
+
+  const allBids = [
+    {
+      packageIndex: 0,
+      vendor: "Mumbai Cement Suppliers",
+      amount: 23000000,
+      delay: 2000,
+      qualityScore: 92,
+      deliveryTime: 25,
+    },
+    {
+      packageIndex: 1,
+      vendor: "Royal Electricals",
+      amount: 17000000,
+      delay: 3000,
+      qualityScore: 95,
+      deliveryTime: 22,
+    },
+    {
+      packageIndex: 0,
+      vendor: "Pune Steel Trading",
+      amount: 24000000,
+      delay: 4000,
+      qualityScore: 88,
+      deliveryTime: 30,
+    },
+    {
+      packageIndex: 2,
+      vendor: "Premium Tiles World",
+      amount: 30000000,
+      delay: 5000,
+      qualityScore: 88,
+      deliveryTime: 28,
+    },
+    {
+      packageIndex: 3,
+      vendor: "Modern Interiors Hub",
+      amount: 14000000,
+      delay: 6000,
+      qualityScore: 90,
+      deliveryTime: 24,
+    },
+    {
+      packageIndex: 0,
+      vendor: "BuildMart Supplies",
+      amount: 23500000,
+      delay: 7000,
+      qualityScore: 85,
+      deliveryTime: 27,
+    },
+    {
+      packageIndex: 1,
+      vendor: "Elite Plumbing Systems",
+      amount: 17500000,
+      delay: 8000,
+      qualityScore: 87,
+      deliveryTime: 26,
+    },
+    {
+      packageIndex: 2,
+      vendor: "Premium Tiles World",
+      amount: 31000000,
+      delay: 9000,
+      qualityScore: 90,
+      deliveryTime: 29,
+    },
+    {
+      packageIndex: 3,
+      vendor: "TechLift Elevators",
+      amount: 14500000,
+      delay: 10000,
+      qualityScore: 88,
+      deliveryTime: 26,
+    },
+  ];
 
   useEffect(() => {
-    const simulate = async () => {
-      if (!state.currentProject?.rfps.length) return;
+    let isCancelled = false;
+    // Sort incoming bids by delay
+    const sortedBids = [...allBids].sort((a, b) => a.delay - b.delay);
 
-      setBids([]);
-      const vendors = state.currentProject.vendors;
-      const rfps = state.currentProject.rfps;
+    const simulateBids = async () => {
+      for (let i = 0; i < sortedBids.length; i++) {
+        const bid = sortedBids[i];
+        await new Promise((res) => setTimeout(res, bid.delay));
+        if (isCancelled) return;
 
-      for (let day = 1; day <= 5; day++) {
-        await new Promise((r) => setTimeout(r, 2000));
-        setDaysRemaining(5 - day);
-
-        const newBids: Bid[] = [];
-        vendors.slice(0, Math.ceil(vendors.length * 0.3)).forEach((vendor) => {
-          rfps.forEach((rfp) => {
-            if (Math.random() > 0.5) {
-              const totalAmount = rfp.bomItems.reduce((sum, item) => {
-                const discount = 0.85 + Math.random() * 0.15;
-                return sum + item.totalPrice * discount;
-              }, 0);
-
-              newBids.push({
-                id: `bid-${vendor.id}-${rfp.id}-${day}`,
-                vendorId: vendor.id,
-                rfpId: rfp.id,
-                totalAmount,
-                breakdown: rfp.bomItems.map((item) => ({
-                  itemId: item.id,
-                  unitPrice: item.unitPrice * (0.85 + Math.random() * 0.15),
-                  totalPrice: item.totalPrice * (0.85 + Math.random() * 0.15),
-                })),
-                deliveryTime: 20 + Math.floor(Math.random() * 20),
-                qualityScore: 4 + Math.random() * 1,
-                paymentTerms: "30% Advance, 70% on Delivery",
-                status: "submitted",
-              });
-            }
-          });
+        setPackages((prev) => {
+          return prev.map((pkg, idx) =>
+            idx === bid.packageIndex
+              ? {
+                  ...pkg,
+                  bids: [
+                    ...pkg.bids,
+                    {
+                      id: `bid-${Date.now()}-${Math.random()}`,
+                      vendor: bid.vendor,
+                      amount: bid.amount,
+                      timestamp: "Just now",
+                      qualityScore: bid.qualityScore,
+                      deliveryTime: bid.deliveryTime,
+                    },
+                  ],
+                }
+              : pkg
+          );
         });
 
-        setBids((prev) => [...prev, ...newBids]);
+        // Simulate passage of one project day after every few bids
+        if ((i + 1) % 2 === 0 && currentDay < TOTAL_DAYS) {
+          setCurrentDay((prev) => prev + 1);
+          setDaysLeft((prev) => Math.max(prev - 1, 0));
+        }
       }
+      setIsSimulating(false);
+      setDaysLeft(0);
+      setCurrentDay(TOTAL_DAYS);
     };
 
-    simulate();
-  }, [state.currentProject?.rfps, state.currentProject?.vendors]);
+    simulateBids();
+    return () => {
+      isCancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleProceed = () => {
-    dispatch({ type: "SET_BIDS", payload: bids });
-    onNext();
+  const formatCurrency = (amount: number) => {
+    const crores = amount / 10000000;
+    return `₹${crores.toFixed(1)} Cr`;
   };
 
-  const getVendorName = (id: string) =>
-    state.currentProject?.vendors.find((v) => v.id === id)?.name || "Unknown";
-
-  const getCategory = (rfpId: string) =>
-    state.currentProject?.rfps.find((r) => r.id === rfpId)?.bomItems[0]
-      ?.category || "Unknown";
-
-  const totalExpected =
-    (state.currentProject?.vendors.length || 0) *
-    (state.currentProject?.rfps.length || 0);
-
-  const received = bids.length;
-  const rate = totalExpected > 0 ? (received / totalExpected) * 100 : 0;
+  const totalReceived = packages.reduce((sum, pkg) => sum + pkg.bids.length, 0);
+  const totalExpected = packages.reduce(
+    (sum, pkg) => sum + pkg.totalExpected,
+    0
+  );
+  const responseRate =
+    totalExpected > 0 ? Math.round((totalReceived / totalExpected) * 100) : 0;
 
   return (
-    <Card className="w-full">
-      <CardHeader className="p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-          <div>
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-              Phase 8: Bid Collection
-            </h2>
-            <p className="text-gray-600 text-sm sm:text-base">
-              Tracking RFP responses from vendors
-            </p>
-          </div>
-
-          <div className="text-left sm:text-right">
-            <div className="flex items-center justify-start sm:justify-end text-sm sm:text-lg font-semibold text-blue-600">
-              <Clock className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-              {daysRemaining} days remaining
+    <div className="min-h-screen p-4 bg-gray-50 md:p-6">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="p-6 mb-6 bg-white rounded-lg shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Inbox className="w-6 h-6 text-blue-600" />
             </div>
-            <p className="text-xs sm:text-sm text-gray-500">
-              RFP closing period
-            </p>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Bid Collection Dashboard
+              </h1>
+              <p className="mt-1 text-sm text-gray-600">
+                Tracking submissions for 4 RFP packages • Day {currentDay} of{" "}
+                {TOTAL_DAYS}
+              </p>
+            </div>
           </div>
         </div>
-      </CardHeader>
 
-      <CardContent className="p-3 sm:p-6">
-        {/* STAT CARDS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          <Card className="p-3 sm:p-4 text-center">
-            <div className="text-lg sm:text-2xl font-bold text-blue-600">
-              {received}
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-4">
+          <div className="p-6 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="mb-2 text-4xl font-bold text-blue-600">
+              {totalReceived}
             </div>
-            <p className="text-xs sm:text-sm text-gray-600">Bids Received</p>
-          </Card>
-
-          <Card className="p-3 sm:p-4 text-center">
-            <div className="text-lg sm:text-2xl font-bold text-green-600">
-              {Math.round(rate)}%
+            <div className="text-sm text-gray-600">Bids Received</div>
+          </div>
+          <div className="p-6 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="mb-2 text-4xl font-bold text-gray-400">
+              {Math.max(totalExpected - totalReceived, 0)}
             </div>
-            <p className="text-xs sm:text-sm text-gray-600">Response Rate</p>
-          </Card>
-
-          <Card className="p-3 sm:p-4 text-center">
-            <div className="text-lg sm:text-2xl font-bold text-purple-600">
-              {state.currentProject?.vendors.length || 0}
+            <div className="text-sm text-gray-600">Pending</div>
+          </div>
+          <div className="p-6 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="mb-2 text-4xl font-bold text-green-600">
+              {responseRate}%
             </div>
-            <p className="text-xs sm:text-sm text-gray-600">
-              Vendors Contacted
-            </p>
-          </Card>
-
-          <Card className="p-3 sm:p-4 text-center">
-            <div className="text-lg sm:text-2xl font-bold text-orange-600">
-              {state.currentProject?.rfps.length || 0}
+            <div className="text-sm text-gray-600">Response Rate</div>
+          </div>
+          <div className="p-6 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="mb-2 text-4xl font-bold text-orange-600">
+              {daysLeft}
             </div>
-            <p className="text-xs sm:text-sm text-gray-600">RFP Packages</p>
-          </Card>
+            <div className="text-sm text-gray-600">Days Left</div>
+          </div>
         </div>
 
-        {/* TABLE */}
-        <div className="overflow-x-auto border border-gray-200 rounded-lg">
-          <table className="min-w-[900px] w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50 sticky top-0 z-10">
-              <tr>
-                {[
-                  "Vendor",
-                  "RFP Category",
-                  "Bid Amount",
-                  "Delivery",
-                  "Quality",
-                  "Status",
-                ].map((col) => (
-                  <th
-                    key={col}
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
+        {/* Collection Progress */}
+        <div className="p-6 mb-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+          <h3 className="mb-4 font-semibold text-gray-900">
+            Collection Progress
+          </h3>
+          <div className="mb-2">
+            <div className="flex items-center justify-between mb-2 text-sm">
+              <span className="text-gray-600">Overall Progress</span>
+              <span className="font-medium text-gray-900">
+                {totalReceived} / {totalExpected} bids
+              </span>
+            </div>
+            <div className="w-full h-3 overflow-hidden bg-gray-200 rounded-full">
+              <div
+                className="h-full transition-all duration-500 bg-gray-900"
+                style={{ width: `${(totalReceived / totalExpected) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Package Sections */}
+        <div className="space-y-4">
+          {packages.map((pkg, idx) => (
+            <div
+              key={idx}
+              className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900">{pkg.name}</h3>
+                <span className="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-gray-900 rounded">
+                  {pkg.bids.length} / {pkg.totalExpected} bids
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {pkg.bids.map((bid) => (
+                  <div
+                    key={bid.id}
+                    className="flex items-center justify-between p-4 border border-green-200 rounded-lg bg-green-50"
                   >
-                    {col}
-                  </th>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-600" />
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {bid.vendor}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {bid.timestamp}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-lg font-bold text-green-600">
+                      {formatCurrency(bid.amount)}
+                    </div>
+                  </div>
                 ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {bids.map((bid) => (
-                <tr key={bid.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">
-                    {getVendorName(bid.vendorId)}
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {getCategory(bid.rfpId)}
-                  </td>
-                  <td className="px-4 py-3 font-semibold">
-                    {formatCurrency(bid.totalAmount)}
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {bid.deliveryTime} days
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">
-                    <span className="font-semibold">
-                      {bid.qualityScore.toFixed(1)}
-                    </span>
-                    <span className="text-yellow-500 ml-1 text-xs">/5</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      <CheckCircle className="h-3 w-3 mr-1" /> Submitted
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                {pkg.bids.length === 0 && (
+                  <div className="py-8 text-center text-gray-400">
+                    <p className="text-sm">Awaiting bids...</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* EMPTY STATE */}
-        {bids.length === 0 && (
-          <div className="text-center py-10">
-            <Mail className="h-14 w-14 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1">
-              Awaiting Bids
-            </h3>
-            <p className="text-sm text-gray-600">
-              Vendor responses will appear here once submitted.
-            </p>
-          </div>
-        )}
-
-        {/* BUTTONS */}
-        <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
-          <Button
-            variant="outline"
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between p-6 mt-6 bg-white rounded-lg shadow-sm">
+          <button
             onClick={onPrevious}
-            className="w-full sm:w-auto"
+            className="flex items-center gap-2 px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            ← Back
-          </Button>
-
-          <Button
-            onClick={handleProceed}
-            disabled={daysRemaining > 0 || bids.length === 0}
-            className={`w-full sm:w-auto ${
-              daysRemaining > 0 || bids.length === 0
-                ? "opacity-60 cursor-not-allowed"
-                : ""
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+          <button
+            onClick={onNext}
+            disabled={isSimulating}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-colors ${
+              isSimulating
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-900 text-white hover:bg-gray-800"
             }`}
           >
-            Analyze Bids & Optimize →
-          </Button>
+            <span className="text-sm font-medium">Proceed to Analysis</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
+
+export default BidCollection;

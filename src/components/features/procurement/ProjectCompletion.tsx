@@ -14,13 +14,13 @@ import {
 } from "lucide-react";
 
 interface ProjectCompletionProps {
-  onNewProject: () => void;
-  onViewDashboard: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
 }
 
 export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
-  onNewProject,
-  onViewDashboard,
+  onNext,
+  onPrevious,
 }) => {
   const { state } = useProcurement();
   const project = state.currentProject;
@@ -34,53 +34,53 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
   const handleCreatePO = () => alert("Creating purchase order...");
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 p-3 sm:p-4 lg:p-0">
+    <div className="max-w-6xl p-3 mx-auto space-y-6 sm:p-4 lg:p-0">
       {/* 🎉 Success Header */}
-      <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
-        <CardContent className="p-6 sm:p-10 text-center">
+      <Card className="border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
+        <CardContent className="p-6 text-center sm:p-10">
           <div className="flex justify-center mb-5">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="h-9 w-9 text-green-600" />
+            <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+              <CheckCircle className="text-green-600 h-9 w-9" />
             </div>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl">
             Procurement Completed Successfully!
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-700 mb-8">
+          <p className="mb-8 text-base text-gray-700 sm:text-lg">
             Project <strong>{project.name}</strong> has been optimized and
             awarded to the most competitive vendor.
           </p>
 
           {/* Summary Highlights */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-xl mx-auto">
-            <div className="bg-white rounded-lg border p-3 sm:p-4 text-center">
-              <div className="text-xl sm:text-2xl font-bold text-green-600">
+          <div className="grid max-w-xl grid-cols-3 gap-2 mx-auto sm:gap-4">
+            <div className="p-3 text-center bg-white border rounded-lg sm:p-4">
+              <div className="text-xl font-bold text-green-600 sm:text-2xl">
                 {formatCurrency(analysis.costSavings)}
               </div>
-              <p className="text-xs sm:text-sm text-gray-600">Total Savings</p>
+              <p className="text-xs text-gray-600 sm:text-sm">Total Savings</p>
             </div>
-            <div className="bg-white rounded-lg border p-3 sm:p-4 text-center">
-              <div className="text-xl sm:text-2xl font-bold text-blue-600">
+            <div className="p-3 text-center bg-white border rounded-lg sm:p-4">
+              <div className="text-xl font-bold text-blue-600 sm:text-2xl">
                 {formatPercentage(analysis.savingsPercentage)}
               </div>
-              <p className="text-xs sm:text-sm text-gray-600">Savings %</p>
+              <p className="text-xs text-gray-600 sm:text-sm">Savings %</p>
             </div>
-            <div className="bg-white rounded-lg border p-3 sm:p-4 text-center">
-              <div className="text-xl sm:text-2xl font-bold text-purple-600">
+            <div className="p-3 text-center bg-white border rounded-lg sm:p-4">
+              <div className="text-xl font-bold text-purple-600 sm:text-2xl">
                 10x
               </div>
-              <p className="text-xs sm:text-sm text-gray-600">Faster</p>
+              <p className="text-xs text-gray-600 sm:text-sm">Faster</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* 🧾 Content Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* LEFT SIDE CONTENT */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* 📜 Next Steps */}
           <Card>
             <CardHeader>
@@ -97,7 +97,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <h4 className="font-medium text-gray-900">
                     Vendor Award Notification
                   </h4>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="mt-1 text-sm text-gray-600">
                     Send official award letter and contract to the L1 vendor.
                   </p>
                   <Button size="sm" className="mt-2">
@@ -113,7 +113,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <h4 className="font-medium text-gray-900">
                     Purchase Order Generation
                   </h4>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="mt-1 text-sm text-gray-600">
                     Create and issue the purchase order for finalized materials.
                   </p>
                   <Button size="sm" className="mt-2" onClick={handleCreatePO}>
@@ -129,7 +129,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <h4 className="font-medium text-gray-900">
                     Delivery Schedule
                   </h4>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="mt-1 text-sm text-gray-600">
                     Coordinate timelines and quality checks with the vendor.
                   </p>
                   <Button size="sm" variant="outline" className="mt-2">
@@ -154,7 +154,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <label className="text-xs font-medium text-gray-600">
                     Project Name
                   </label>
-                  <p className="text-gray-900 text-sm sm:text-base">
+                  <p className="text-sm text-gray-900 sm:text-base">
                     {project.name}
                   </p>
                 </div>
@@ -163,7 +163,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <label className="text-xs font-medium text-gray-600">
                     Location
                   </label>
-                  <p className="text-gray-900 text-sm sm:text-base">
+                  <p className="text-sm text-gray-900 sm:text-base">
                     {project.requirement.location}
                   </p>
                 </div>
@@ -172,7 +172,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <label className="text-xs font-medium text-gray-600">
                     Total Value
                   </label>
-                  <p className="text-gray-900 text-sm sm:text-base">
+                  <p className="text-sm text-gray-900 sm:text-base">
                     {formatCurrency(project.requirement.budget)}
                   </p>
                 </div>
@@ -181,7 +181,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <label className="text-xs font-medium text-gray-600">
                     Savings Achieved
                   </label>
-                  <p className="text-green-600 font-semibold text-sm sm:text-base">
+                  <p className="text-sm font-semibold text-green-600 sm:text-base">
                     {formatCurrency(analysis.costSavings)} (
                     {formatPercentage(analysis.savingsPercentage)})
                   </p>
@@ -191,7 +191,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <label className="text-xs font-medium text-gray-600">
                     Vendors Participated
                   </label>
-                  <p className="text-gray-900 text-sm sm:text-base">
+                  <p className="text-sm text-gray-900 sm:text-base">
                     {project.vendors.length}
                   </p>
                 </div>
@@ -200,7 +200,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <label className="text-xs font-medium text-gray-600">
                     Bids Received
                   </label>
-                  <p className="text-gray-900 text-sm sm:text-base">
+                  <p className="text-sm text-gray-900 sm:text-base">
                     {project.bids.length}
                   </p>
                 </div>
@@ -221,27 +221,27 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
 
             <CardContent className="space-y-3">
               <Button
-                className="w-full justify-start"
+                className="justify-start w-full"
                 variant="outline"
                 onClick={handleDownloadReport}
               >
-                <Download className="h-4 w-4 mr-2" /> Download Report
+                <Download className="w-4 h-4 mr-2" /> Download Report
               </Button>
 
               <Button
-                className="w-full justify-start"
+                className="justify-start w-full"
                 variant="outline"
                 onClick={handleShareResults}
               >
-                <Share2 className="h-4 w-4 mr-2" /> Share Results
+                <Share2 className="w-4 h-4 mr-2" /> Share Results
               </Button>
 
               <Button
-                className="w-full justify-start"
+                className="justify-start w-full"
                 variant="outline"
-                onClick={onNewProject}
+                onClick={onPrevious}
               >
-                <FileText className="h-4 w-4 mr-2" /> New Project
+                <FileText className="w-4 h-4 mr-2" /> New Project
               </Button>
             </CardContent>
           </Card>
@@ -268,7 +268,7 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
                   <span className="text-gray-600">Vendor Response Rate</span>
                   <span className="font-semibold">91.7%</span>
                 </div>
-                <div className="flex justify-between border-t pt-2 text-sm font-semibold">
+                <div className="flex justify-between pt-2 text-sm font-semibold border-t">
                   <span className="text-gray-900">Estimated ROI</span>
                   <span className="text-green-600">3.5x</span>
                 </div>
@@ -278,14 +278,10 @@ export const ProjectCompletion: React.FC<ProjectCompletionProps> = ({
 
           {/* 🎯 Final Actions */}
           <div className="space-y-3">
-            <Button className="w-full" onClick={onNewProject}>
+            <Button className="w-full" onClick={onNext}>
               Start New Procurement
             </Button>
-            <Button
-              className="w-full"
-              variant="outline"
-              onClick={onViewDashboard}
-            >
+            <Button className="w-full" variant="outline" onClick={onPrevious}>
               Back to Dashboard
             </Button>
           </div>

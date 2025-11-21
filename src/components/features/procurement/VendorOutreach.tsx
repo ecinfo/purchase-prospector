@@ -1,223 +1,258 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-// src/components/features/procurement/VendorOutreach.tsx
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "../../ui/Card";
-import { Button } from "../../ui/Button";
-import { useProcurement } from "../../../contexts/ProcurementContext";
-import { Phone, CheckCircle, Clock, XCircle } from "lucide-react";
+import {
+  Phone,
+  CheckCircle,
+  X,
+  Mail,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
 
 interface VendorOutreachProps {
-  onNext: () => void;
-  onPrevious: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
 }
 
-interface OutreachStatus {
-  vendorId: string;
-  vendorName: string;
-  contact: string;
-  status: "pending" | "contacted" | "interested" | "not-interested";
-  timestamp?: string;
-  notes?: string;
+interface Vendor {
+  id: string;
+  name: string;
+  email: string;
+  status: "pending" | "calling" | "interested" | "declined";
+  note: string;
 }
 
-export const VendorOutreach: React.FC<VendorOutreachProps> = ({
+const VendorOutreach: React.FC<VendorOutreachProps> = ({
   onNext,
   onPrevious,
 }) => {
-  const { state } = useProcurement();
-  const [outreachStatus, setOutreachStatus] = useState<OutreachStatus[]>([]);
+  const [vendors, setVendors] = useState<Vendor[]>([
+    {
+      id: "1",
+      name: "Mumbai Cement Suppliers Pvt Ltd",
+      email: "contact@mumbaicement.com",
+      status: "pending",
+      note: "Interested, requested RFP details",
+    },
+    {
+      id: "2",
+      name: "Pune Steel Trading Co.",
+      email: "sales@punesteel.com",
+      status: "pending",
+      note: "Confirmed interest, will review RFP",
+    },
+    {
+      id: "3",
+      name: "Royal Electricals & MEP Solutions",
+      email: "info@royalelectricals.com",
+      status: "pending",
+      note: "Interested, asked for site visit",
+    },
+    {
+      id: "4",
+      name: "Elite Plumbing Systems",
+      email: "",
+      status: "pending",
+      note: "Currently at capacity, declined",
+    },
+    {
+      id: "5",
+      name: "Premium Tiles & Sanitary World",
+      email: "sales@premiumtiles.com",
+      status: "pending",
+      note: "Very interested, ready to quote",
+    },
+    {
+      id: "6",
+      name: "Modern Interiors Hub",
+      email: "contact@moderninteriors.com",
+      status: "pending",
+      note: "Interested, requested timeline details",
+    },
+  ]);
+
   const [isSimulating, setIsSimulating] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [currentCall, setCurrentCall] = useState(0);
 
   useEffect(() => {
-    if (!state.currentProject?.vendors.length) return;
-
-    const initialStatus: OutreachStatus[] = state.currentProject.vendors.map(
-      (vendor) => ({
-        vendorId: vendor.id,
-        vendorName: vendor.name,
-        contact: vendor.contact.primary.phone,
-        status: "pending",
-      })
-    );
-
-    setOutreachStatus(initialStatus);
-
-    const simulateOutreach = async () => {
+    const simulateCalls = async () => {
       setIsSimulating(true);
 
-      for (let i = 0; i < initialStatus.length; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 900));
+      for (let i = 0; i < vendors.length; i++) {
+        setCurrentCall(i);
+        setProgress((i / vendors.length) * 100);
 
-        setOutreachStatus((prev) => {
-          const updated = [...prev];
-          updated[i] = {
-            ...updated[i],
-            status: "contacted",
-            timestamp: new Date().toISOString(),
-          };
-          return updated;
-        });
+        // Mark as calling
+        setVendors((prev) =>
+          prev.map((v, idx) =>
+            idx === i ? { ...v, status: "calling" as const } : v
+          )
+        );
 
-        setTimeout(() => {
-          setOutreachStatus((prev) => {
-            const updated = [...prev];
-            const isInterested = Math.random() > 0.3;
-            updated[i] = {
-              ...updated[i],
-              status: isInterested ? "interested" : "not-interested",
-              notes: isInterested
-                ? "Confirmed interest, awaiting RFP"
-                : "Not taking new projects currently",
-            };
-            return updated;
-          });
-        }, 1300);
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        // Update to final status
+        setVendors((prev) =>
+          prev.map((v, idx) => {
+            if (idx === i) {
+              return {
+                ...v,
+                status:
+                  v.id === "4"
+                    ? ("declined" as const)
+                    : ("interested" as const),
+              };
+            }
+            return v;
+          })
+        );
+
+        setProgress(((i + 1) / vendors.length) * 100);
       }
 
       setIsSimulating(false);
     };
 
-    simulateOutreach();
-  }, [state.currentProject?.vendors]);
+    simulateCalls();
+  }, []);
 
-  const getStatusIcon = (status: OutreachStatus["status"]) => {
-    switch (status) {
-      case "interested":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "not-interested":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      case "contacted":
-        return <Clock className="h-5 w-5 text-yellow-500" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-400" />;
-    }
-  };
-
-  const statusBadge = (status: OutreachStatus["status"]) => {
-    const colors: Record<string, string> = {
-      interested: "bg-green-100 text-green-800",
-      "not-interested": "bg-red-100 text-red-800",
-      contacted: "bg-yellow-100 text-yellow-800",
-      pending: "bg-gray-100 text-gray-800",
-    };
-    return colors[status];
-  };
-
-  const interestedCount = outreachStatus.filter(
+  const interestedCount = vendors.filter(
     (v) => v.status === "interested"
   ).length;
-  const total = outreachStatus.length;
+  const totalCount = vendors.length;
 
   return (
-    <Card className="w-full">
-      <CardHeader className="p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-          Phase 7: Vendor Outreach
-        </h2>
-        <p className="text-gray-600 text-sm sm:text-base">
-          Automated vendor interest collection via phone calls
-        </p>
-      </CardHeader>
+    <div className="min-h-screen p-4 bg-gray-50 md:p-6">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="p-6 mb-6 bg-white rounded-lg shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Phone className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Automated Vendor Outreach
+              </h1>
+              <p className="mt-1 text-sm text-gray-600">
+                AI will place voice calls to {totalCount} shortlisted vendors
+              </p>
+            </div>
+          </div>
+        </div>
 
-      <CardContent className="p-3 sm:p-6">
-        {isSimulating && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-6">
-            <div className="flex items-center">
-              <Phone className="h-5 w-5 text-blue-600 mr-3" />
+        {/* Progress or Success Message */}
+        {isSimulating ? (
+          <div className="p-6 mb-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-5 h-5 border-2 border-blue-600 rounded-full border-t-transparent animate-spin" />
+              <span className="font-medium text-gray-900">
+                Calling Vendors...
+              </span>
+            </div>
+            <div className="relative w-full h-2 overflow-hidden bg-gray-200 rounded-full">
+              <div
+                className="absolute top-0 left-0 h-full transition-all duration-500 bg-gray-900"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="mt-3 text-sm text-center text-gray-600">
+              {currentCall + 1} of {totalCount} calls completed
+            </p>
+          </div>
+        ) : (
+          <div className="p-6 mb-6 border border-green-200 rounded-lg bg-green-50">
+            <div className="flex items-center gap-3">
+              <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-600" />
               <div>
-                <h4 className="font-semibold text-blue-900 text-sm sm:text-base">
-                  Outreach in Progress
-                </h4>
-                <p className="text-xs sm:text-sm text-blue-700 mt-1">
-                  AI calling vendors and collecting interest…
+                <h3 className="font-semibold text-green-900">
+                  Outreach Complete: {interestedCount} vendors interested
+                </h3>
+                <p className="mt-1 text-sm text-green-700">
+                  Email addresses collected and ready for RFP distribution
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* VENDOR ROWS */}
-        <div className="space-y-3 sm:space-y-4 mb-6">
-          {outreachStatus.map((vendor) => (
-            <div
-              key={vendor.vendorId}
-              className="p-3 sm:p-4 border border-gray-200 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-            >
-              <div className="flex items-center gap-3">
-                {getStatusIcon(vendor.status)}
-                <div>
-                  <h4 className="font-medium text-gray-900 text-sm sm:text-base">
-                    {vendor.vendorName}
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    {vendor.contact}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                <span
-                  className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${statusBadge(
-                    vendor.status
-                  )}`}
+        {/* Call Results */}
+        {!isSimulating && (
+          <div className="p-6 mb-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 className="mb-4 font-semibold text-gray-900">Call Results</h3>
+            <div className="space-y-3">
+              {vendors.map((vendor) => (
+                <div
+                  key={vendor.id}
+                  className="p-4 transition-colors border border-gray-200 rounded-lg hover:border-gray-300"
                 >
-                  {vendor.status.replace("-", " ")}
-                </span>
-
-                {vendor.notes && (
-                  <span className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-0">
-                    {vendor.notes}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* SUMMARY BOX */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm sm:text-base font-semibold text-green-900">
-                Outreach Summary
-              </h4>
-              <p className="text-xs sm:text-sm text-green-700 mt-1">
-                {interestedCount} of {total} vendors interested (
-                {Math.round((interestedCount / total) * 100)}% response rate)
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-xl sm:text-2xl font-bold text-green-600">
-                {Math.round((interestedCount / total) * 100)}%
-              </div>
-              <p className="text-xs sm:text-sm text-green-700">Response Rate</p>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5">
+                      {vendor.status === "interested" ? (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <X className="w-5 h-5 text-red-500" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <h4 className="font-medium text-gray-900">
+                          {vendor.name}
+                        </h4>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium whitespace-nowrap ${
+                            vendor.status === "interested"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {vendor.status === "interested"
+                            ? "Interested"
+                            : "Declined"}
+                        </span>
+                      </div>
+                      {vendor.email && (
+                        <div className="flex items-center gap-2 mb-2 text-sm text-gray-600">
+                          <Mail className="w-4 h-4" />
+                          <span>{vendor.email}</span>
+                        </div>
+                      )}
+                      <p className="text-sm text-gray-600">{vendor.note}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
 
-        {/* BUTTONS */}
-        <div className="flex flex-col sm:flex-row justify-between gap-3">
-          <Button
-            variant="outline"
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between p-6 bg-white rounded-lg shadow-sm">
+          <button
             onClick={onPrevious}
-            className="w-full sm:w-auto"
+            className="flex items-center gap-2 px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            ← Back
-          </Button>
-
-          <Button
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+          <button
             onClick={onNext}
-            disabled={isSimulating || interestedCount === 0}
-            className={`w-full sm:w-auto ${
-              isSimulating || interestedCount === 0
-                ? "opacity-60 cursor-not-allowed"
-                : ""
+            disabled={isSimulating}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-colors ${
+              isSimulating
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-900 text-white hover:bg-gray-800"
             }`}
           >
-            Distribute RFPs ({interestedCount}) →
-          </Button>
+            <span className="text-sm font-medium">
+              Proceed to RFP Distribution
+            </span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
+
+export default VendorOutreach;

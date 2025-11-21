@@ -10,8 +10,16 @@ import {
   X,
   LogOut,
   HelpCircle,
+  FileText,
+  Search,
+  Mail,
+  Award,
+  TrendingUp,
+  CheckCircle,
+  ListChecks,
 } from "lucide-react";
 import { useApp } from "../../contexts/AppContext";
+import { useProcurement } from "../../contexts/ProcurementContext";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
@@ -21,16 +29,114 @@ const navigation = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
+const procurementSteps = [
+  {
+    number: 1,
+    name: "Project Input",
+    icon: FileText,
+    description: "Define requirements",
+  },
+  {
+    number: 2,
+    name: "AI Qualification",
+    icon: ListChecks,
+    description: "Answer questions",
+  },
+  {
+    number: 3,
+    name: "Quantification",
+    icon: TrendingUp,
+    description: "Specifications",
+  },
+  {
+    number: 4,
+    name: "Bill of Materials",
+    icon: FileText,
+    description: "Procurement list",
+  },
+  {
+    number: 5,
+    name: "Vendor Search",
+    icon: Search,
+    description: "Find suppliers",
+  },
+  {
+    number: 6,
+    name: "RFP Generation",
+    icon: Mail,
+    description: "Create proposals",
+  },
+  {
+    number: 7,
+    name: "Vendor Outreach",
+    icon: Users,
+    description: "Collect interest",
+  },
+  {
+    number: 8,
+    name: "Bid Collection",
+    icon: Award,
+    description: "Track responses",
+  },
+  {
+    number: 9,
+    name: "Analysis",
+    icon: TrendingUp,
+    description: "AI optimization",
+  },
+  {
+    number: 10,
+    name: "Completion",
+    icon: CheckCircle,
+    description: "Award & close",
+  },
+];
+
 const secondaryNav = [
   { name: "Help & Support", href: "/support", icon: HelpCircle },
 ];
 
 export const Sidebar: React.FC = () => {
   const { state, dispatch } = useApp();
+  const { state: procurementState } = useProcurement();
 
   const closeSidebar = () => {
     if (window.innerWidth < 1024) {
       dispatch({ type: "SET_SIDEBAR_OPEN", payload: false });
+    }
+  };
+
+  const getStepStatus = (stepNumber: number) => {
+    if (!procurementState.currentProject) return "upcoming";
+
+    if (stepNumber < procurementState.currentPhase) return "completed";
+    if (stepNumber === procurementState.currentPhase) return "current";
+    return "upcoming";
+  };
+
+  const getStepIcon = (stepNumber: number, Icon: any) => {
+    const status = getStepStatus(stepNumber);
+
+    switch (status) {
+      case "completed":
+        return <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />;
+      case "current":
+        return <Icon className="w-4 h-4 text-blue-600 shrink-0" />;
+      default:
+        return <Icon className="w-4 h-4 text-gray-400 shrink-0" />;
+    }
+  };
+
+  const getStepColor = (stepNumber: number) => {
+    const status = getStepStatus(stepNumber);
+
+    switch (status) {
+      case "completed":
+        return "text-green-700 bg-green-50 border-green-200";
+      case "current":
+        return "text-blue-700 bg-blue-50 border-blue-200";
+      default:
+        return "text-gray-500 bg-gray-50 border-gray-200";
     }
   };
 
@@ -48,7 +154,7 @@ export const Sidebar: React.FC = () => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 
+          fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-200 
           transform transition-transform duration-300 ease-in-out 
           lg:translate-x-0 lg:static lg:z-auto
           flex flex-col
@@ -77,43 +183,126 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
           {/* Main Navigation */}
-          <div className="space-y-1">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.name}
-                  to={item.href}
-                  onClick={closeSidebar}
-                  className={({ isActive }) =>
-                    `group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors  ${
-                      isActive
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <Icon
-                        className={`h-5 w-5 shrink-0 ${
-                          isActive
-                            ? "text-blue-600"
-                            : "text-gray-400 group-hover:text-gray-600"
-                        }`}
-                      />
-                      {item.name}
-                    </>
-                  )}
-                </NavLink>
-              );
-            })}
+          <div>
+            <p className="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+              Main Menu
+            </p>
+            <div className="space-y-1">
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.name}
+                    to={item.href}
+                    onClick={closeSidebar}
+                    className={({ isActive }) =>
+                      `group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors  ${
+                        isActive
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <Icon
+                          className={`h-5 w-5 shrink-0 ${
+                            isActive
+                              ? "text-blue-600"
+                              : "text-gray-400 group-hover:text-gray-600"
+                          }`}
+                        />
+                        {item.name}
+                      </>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
           </div>
 
+          {/* Procurement Steps - Only show when there's an active project */}
+          {procurementState.currentProject && (
+            <div>
+              <p className="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+                Procurement Steps
+              </p>
+              <div className="space-y-1">
+                {procurementSteps.map((step) => {
+                  const Icon = step.icon;
+                  const status = getStepStatus(step.number);
+                  const isCurrent = status === "current";
+                  const isCompleted = status === "completed";
+
+                  return (
+                    <div
+                      key={step.number}
+                      className={`
+                        flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg border transition-colors cursor-default
+                        ${getStepColor(step.number)}
+                        ${isCurrent ? "ring-2 ring-blue-200" : ""}
+                      `}
+                    >
+                      <div className="flex items-center justify-center w-6 h-6">
+                        {getStepIcon(step.number, Icon)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{step.name}</span>
+                          {isCurrent && (
+                            <span className="px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                              Current
+                            </span>
+                          )}
+                          {isCompleted && (
+                            <CheckCircle className="w-3 h-3 text-green-500 shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-xs truncate opacity-75">
+                          {step.description}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center w-5 h-5 text-xs font-medium bg-white border rounded-full shrink-0">
+                        {step.number}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Current Project Info */}
+              <div className="p-3 mt-4 border rounded-lg bg-gray-50">
+                <p className="mb-1 text-xs font-medium text-gray-600">
+                  Current Project
+                </p>
+                <p className="text-sm font-semibold text-gray-900 truncate">
+                  {procurementState.currentProject.name}
+                </p>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs text-gray-500">
+                    Step {procurementState.currentPhase} of 10
+                  </span>
+                  <span
+                    className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      procurementState.currentProject.status === "completed"
+                        ? "bg-green-100 text-green-800"
+                        : procurementState.currentProject.status ===
+                          "in_progress"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {procurementState.currentProject.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Secondary Navigation */}
-          <div className="pt-4 mt-8 border-t border-gray-200">
+          <div className="pt-4 border-t border-gray-200">
             <p className="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">
               Support
             </p>
