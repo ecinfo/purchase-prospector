@@ -126,12 +126,12 @@ const detailedQuestions = [
     type: "radio",
     options: ["12 months", "18 months", "24 months", "30+ months"],
   },
-  {
-    id: "budgetRange",
-    question: "What is your approximate budget range (in Crores)?",
-    type: "number",
-    placeholder: "Enter amount",
-  },
+  // {
+  //   id: "budgetRange",
+  //   question: "What is your approximate budget range (in Crores)?",
+  //   type: "number",
+  //   placeholder: "Enter amount",
+  // },
 ];
 
 // Combine all questions
@@ -443,7 +443,7 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
             )}
 
             {/* Detailed Number Input (for budget range) */}
-            {currentQuestion.type === "number" &&
+            {/* {currentQuestion.type === "number" &&
               currentStep >= basicQuestions.length && (
                 <input
                   type="number"
@@ -458,7 +458,7 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
                   }
                   className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg sm:text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              )}
+              )} */}
           </CardContent>
         </Card>
 

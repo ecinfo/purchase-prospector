@@ -125,19 +125,41 @@ const VendorOutreach: React.FC<VendorOutreachProps> = ({
     <div className="min-h-screen p-4 bg-gray-50 md:p-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="p-6 mb-6 bg-white rounded-lg shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Phone className="w-6 h-6 text-blue-600" />
+        {/* AI Call Script */}
+        <div className="p-6 mb-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+          <div className="flex items-center justify-between mb-3 cursor-pointer">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Phone className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                AI Call Script
+              </h3>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Automated Vendor Outreach
-              </h1>
-              <p className="mt-1 text-sm text-gray-600">
-                AI will place voice calls to {totalCount} shortlisted vendors
-              </p>
-            </div>
+          </div>
+
+          <div className="p-4 text-sm leading-relaxed text-gray-700 border-l-4 border-blue-500 rounded-md bg-gray-50">
+            <p className="mb-2">
+              <strong>
+                Hello, this is an automated call from Purchase Prospector
+              </strong>{" "}
+              on behalf of <strong>[Your Company]</strong>.
+            </p>
+            <p className="mb-2">
+              We have a residential construction project in{" "}
+              <strong>Pune/Mumbai</strong> and would like to invite you to
+              submit a proposal.
+            </p>
+            <p className="mb-2">
+              <strong>
+                Are you interested in receiving our RFP documentation?
+              </strong>{" "}
+              If yes, please provide your email address.
+            </p>
+            <p>
+              The <strong>RFP submission deadline is 5 days from today.</strong>{" "}
+              Thank you for your time.
+            </p>
           </div>
         </div>
 
