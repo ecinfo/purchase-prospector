@@ -191,12 +191,12 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
     });
   };
 
-  const handleNumberChange = (value: number) => {
-    setFormData({
-      ...formData,
-      [currentQuestion.id]: value,
-    });
-  };
+  // const handleNumberChange = (value: number) => {
+  //   setFormData({
+  //     ...formData,
+  //     [currentQuestion.id]: value,
+  //   });
+  // };
 
   const isStepValid = () => {
     const question = currentQuestion;
@@ -319,7 +319,11 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
                 onChange={(e) =>
                   handleBasicInput(currentQuestion.id, e.target.value)
                 }
-                placeholder={currentQuestion.placeholder}
+                placeholder={
+                  "placeholder" in currentQuestion
+                    ? currentQuestion.placeholder
+                    : ""
+                }
                 className="w-full text-base sm:text-lg"
               />
             )}
@@ -337,7 +341,11 @@ export const QualificationForm: React.FC<QualificationFormProps> = ({
                   onChange={(e) =>
                     handleBasicInput(currentQuestion.id, Number(e.target.value))
                   }
-                  placeholder={currentQuestion.placeholder}
+                  placeholder={
+                    "placeholder" in currentQuestion
+                      ? currentQuestion.placeholder
+                      : ""
+                  }
                   className="w-full text-base sm:text-lg"
                 />
               )}
