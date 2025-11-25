@@ -26,12 +26,14 @@ const Select: React.FC<SelectProps> = ({
   placeholder = "Select...",
 }) => (
   <div className="space-y-1.5">
-    <label className="block text-sm font-medium text-gray-700">{label}</label>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      {label}
+    </label>
     <div className="relative">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 pr-10 text-sm text-gray-900 transition-colors bg-white border border-gray-300 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+        className="w-full px-3 py-2 pr-10 text-sm text-gray-900 transition-colors bg-white border border-gray-300 rounded-lg appearance-none cursor-pointer  hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:border-gray-500 dark:focus:border-blue-400 dark:focus:ring-blue-600"
       >
         <option value="">{placeholder}</option>
         {options.map((opt) => (
@@ -40,7 +42,7 @@ const Select: React.FC<SelectProps> = ({
           </option>
         ))}
       </select>
-      <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none right-3 top-1/2" />
+      <ChevronDown className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 pointer-events-none dark:text-gray-500 right-3 top-1/2" />
     </div>
   </div>
 );
@@ -142,12 +144,13 @@ export const VendorFilters: React.FC = () => {
           options={PAYMENT_TERMS.map((t) => ({ value: t, label: t }))}
         />
 
+        {/* Min Order Value */}
         <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Min Order Value
           </label>
           <div className="relative">
-            <span className="absolute text-sm text-gray-500 -translate-y-1/2 left-3 top-1/2">
+            <span className="absolute text-sm text-gray-500 -translate-y-1/2 dark:text-gray-400 left-3 top-1/2">
               ₹
             </span>
             <Input
@@ -155,24 +158,26 @@ export const VendorFilters: React.FC = () => {
               placeholder="e.g., 1,00,000"
               value={filters.minOrder}
               onChange={(e) => updateFilter("minOrder", e.target.value)}
-              className="text-sm pl-7"
+              className="text-sm pl-7 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200"
             />
           </div>
         </div>
       </div>
 
       {/* Actions Row */}
-      <div className="flex flex-col items-start justify-between gap-3 pt-4 border-t sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 sm:flex-row sm:items-center">
         {/* Active Filters Count */}
         {hasActiveFilters ? (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">
               {Object.values(filters).filter((v) => v !== "").length}
             </span>
             <span>filters applied</span>
           </div>
         ) : (
-          <div className="text-sm text-gray-400">No filters applied</div>
+          <div className="text-sm text-gray-400 dark:text-gray-500">
+            No filters applied
+          </div>
         )}
 
         {/* Reset Button */}
@@ -180,7 +185,7 @@ export const VendorFilters: React.FC = () => {
           variant="outline"
           onClick={resetFilters}
           disabled={!hasActiveFilters}
-          className="flex items-center gap-2 shrink-0"
+          className="flex items-center gap-2 shrink-0 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
         >
           <RotateCcw className="w-4 h-4" />
           Reset Filters

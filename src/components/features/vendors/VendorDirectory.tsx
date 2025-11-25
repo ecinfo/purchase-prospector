@@ -1,5 +1,4 @@
 // src/components/features/vendors/VendorDirectory.tsx
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "../../ui/Card";
 import { Input } from "../../ui/Input";
@@ -29,37 +28,40 @@ export const VendorDirectory: React.FC = () => {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vendor Directory</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Vendor Directory
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
             2,148 certified construction suppliers
           </p>
         </div>
-        <Button>
-          <Download className="w-4 h-4 mr-2" />
+
+        <Button className="flex items-center gap-2">
+          <Download className="w-4 h-4" />
           Export List
         </Button>
       </div>
 
       {/* Search + Filters */}
-      <Card className="bg-white">
+      <Card className="bg-white dark:bg-gray-900 dark:border-gray-700">
         <CardContent className="p-4">
           <div className="flex flex-col gap-4 sm:flex-row">
-            {/* Fixed: Search input with proper icon positioning */}
+            {/* Search input */}
             <div className="relative flex-1">
-              <Search className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/3" />
+              <Search className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 dark:text-gray-500 left-3 top-1/2" />
               <Input
                 type="text"
                 placeholder="Search vendors by name, category, or location..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10"
+                className="w-full pl-10 text-gray-900 placeholder-gray-500 border-gray-300 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
               />
             </div>
 
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-gray-300 dark:border-gray-700 dark:text-gray-700 dark:hover:text-gray-100 dark:hover:bg-gray-800"
             >
               <Filter className="w-4 h-4" />
               <span>Filters</span>
@@ -73,7 +75,7 @@ export const VendorDirectory: React.FC = () => {
             }`}
           >
             {showFilters && (
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <VendorFilters />
               </div>
             )}
@@ -96,18 +98,22 @@ export const VendorDirectory: React.FC = () => {
 
       {/* Empty State */}
       {filteredVendors.length === 0 && (
-        <Card>
+        <Card className="dark:bg-gray-900 dark:border-gray-700">
           <CardContent className="p-8 text-center">
-            <div className="mb-2 text-gray-400">No vendors found</div>
-            <p className="text-gray-600">Try adjusting your search criteria</p>
+            <div className="mb-2 text-gray-400 dark:text-gray-500">
+              No vendors found
+            </div>
+            <p className="text-gray-600 dark:text-gray-400">
+              Try adjusting your search criteria
+            </p>
           </CardContent>
         </Card>
       )}
 
       {/* Directory Sources */}
-      <Card>
+      <Card className="dark:bg-gray-900 dark:border-gray-700">
         <CardHeader>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Integrated Vendor Directories
           </h3>
         </CardHeader>
@@ -121,9 +127,14 @@ export const VendorDirectory: React.FC = () => {
               { name: "Google Business", count: "600+" },
               { name: "ConstructConnect", count: "150+" },
             ].map((source) => (
-              <div key={source.name} className="p-4 rounded-lg bg-gray-50">
-                <div className="font-medium text-gray-900">{source.name}</div>
-                <div className="text-sm text-gray-600">
+              <div
+                key={source.name}
+                className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
+              >
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  {source.name}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {source.count} vendors
                 </div>
               </div>
