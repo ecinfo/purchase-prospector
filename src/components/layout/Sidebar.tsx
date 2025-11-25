@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/layout/Sidebar.tsx
 import React from "react";
 import { NavLink } from "react-router-dom";
@@ -108,7 +109,6 @@ export const Sidebar: React.FC = () => {
 
   const getStepStatus = (stepNumber: number) => {
     if (!procurementState.currentProject) return "upcoming";
-
     if (stepNumber < procurementState.currentPhase) return "completed";
     if (stepNumber === procurementState.currentPhase) return "current";
     return "upcoming";
@@ -116,27 +116,31 @@ export const Sidebar: React.FC = () => {
 
   const getStepIcon = (stepNumber: number, Icon: any) => {
     const status = getStepStatus(stepNumber);
-
     switch (status) {
       case "completed":
-        return <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />;
+        return (
+          <CheckCircle className="w-4 h-4 text-green-500 dark:text-green-400 shrink-0" />
+        );
       case "current":
-        return <Icon className="w-4 h-4 text-blue-600 shrink-0" />;
+        return (
+          <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+        );
       default:
-        return <Icon className="w-4 h-4 text-gray-400 shrink-0" />;
+        return (
+          <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" />
+        );
     }
   };
 
   const getStepColor = (stepNumber: number) => {
     const status = getStepStatus(stepNumber);
-
     switch (status) {
       case "completed":
-        return "text-green-700 bg-green-50 border-green-200";
+        return "text-green-700 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700 dark:text-green-300";
       case "current":
-        return "text-blue-700 bg-blue-50 border-blue-200";
+        return "text-blue-700 bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700 dark:text-blue-300";
       default:
-        return "text-gray-500 bg-gray-50 border-gray-200";
+        return "text-gray-500 bg-gray-50 border-gray-200 dark:bg-gray-800/30 dark:border-gray-700 dark:text-gray-300";
     }
   };
 
@@ -145,7 +149,7 @@ export const Sidebar: React.FC = () => {
       {/* Mobile overlay */}
       {state.sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 transition-opacity bg-gray-900/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 transition-opacity bg-gray-900/50 backdrop-blur-sm dark:bg-black/60 lg:hidden"
           onClick={() => dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })}
           aria-hidden="true"
         />
@@ -154,20 +158,21 @@ export const Sidebar: React.FC = () => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-200 
-          transform transition-transform duration-300 ease-in-out 
+          fixed inset-y-0 left-0 z-50 w-80 border-r
+          bg-white dark:bg-gray-900 dark:border-gray-700
+          border-gray-200 transform transition-transform duration-300 ease-in-out 
           lg:translate-x-0 lg:static lg:z-auto
           flex flex-col
           ${state.sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 border-b border-gray-200 h-14 sm:h-16 shrink-0">
+        <div className="flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700 h-14 sm:h-16 shrink-0">
           <div className="flex items-center min-w-0 gap-2">
-            <div className="p-1.5 bg-blue-600 rounded-lg shrink-0">
+            <div className="p-1.5 bg-blue-600 dark:bg-blue-500 rounded-lg shrink-0">
               <Building className="w-5 h-5 text-white" />
             </div>
-            <span className="text-base font-bold text-gray-900 truncate">
+            <span className="text-base font-bold text-gray-900 truncate dark:text-gray-100">
               AgentProcure
             </span>
           </div>
@@ -175,7 +180,7 @@ export const Sidebar: React.FC = () => {
             onClick={() =>
               dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })
             }
-            className="p-2 -mr-2 text-gray-400 transition-colors rounded-lg lg:hidden hover:text-gray-600 hover:bg-gray-100"
+            className="p-2 -mr-2 text-gray-400 transition-colors rounded-lg lg:hidden hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
@@ -184,9 +189,9 @@ export const Sidebar: React.FC = () => {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
-          {/* Main Navigation */}
+          {/* Main Menu */}
           <div>
-            <p className="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+            <p className="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase dark:text-gray-500">
               Main Menu
             </p>
             <div className="space-y-1">
@@ -198,10 +203,10 @@ export const Sidebar: React.FC = () => {
                     to={item.href}
                     onClick={closeSidebar}
                     className={({ isActive }) =>
-                      `group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors  ${
+                      `group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                         isActive
-                          ? "bg-blue-50 text-blue-700"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                       }`
                     }
                   >
@@ -210,8 +215,8 @@ export const Sidebar: React.FC = () => {
                         <Icon
                           className={`h-5 w-5 shrink-0 ${
                             isActive
-                              ? "text-blue-600"
-                              : "text-gray-400 group-hover:text-gray-600"
+                              ? "text-blue-600 dark:text-blue-300"
+                              : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300"
                           }`}
                         />
                         {item.name}
@@ -223,10 +228,10 @@ export const Sidebar: React.FC = () => {
             </div>
           </div>
 
-          {/* Procurement Steps - Only show when there's an active project */}
+          {/* Procurement Steps */}
           {procurementState.currentProject && (
             <div>
-              <p className="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+              <p className="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase dark:text-gray-500">
                 Procurement Steps
               </p>
               <div className="space-y-1">
@@ -242,7 +247,11 @@ export const Sidebar: React.FC = () => {
                       className={`
                         flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg border transition-colors cursor-default
                         ${getStepColor(step.number)}
-                        ${isCurrent ? "ring-2 ring-blue-200" : ""}
+                        ${
+                          isCurrent
+                            ? "ring-2 ring-blue-200 dark:ring-blue-800/50"
+                            : ""
+                        }
                       `}
                     >
                       <div className="flex items-center justify-center w-6 h-6">
@@ -251,20 +260,22 @@ export const Sidebar: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{step.name}</span>
+
                           {isCurrent && (
-                            <span className="px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                            <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                               Current
                             </span>
                           )}
+
                           {isCompleted && (
-                            <CheckCircle className="w-3 h-3 text-green-500 shrink-0" />
+                            <CheckCircle className="w-3 h-3 text-green-500 dark:text-green-400 shrink-0" />
                           )}
                         </div>
                         <p className="text-xs truncate opacity-75">
                           {step.description}
                         </p>
                       </div>
-                      <div className="flex items-center justify-center w-5 h-5 text-xs font-medium bg-white border rounded-full shrink-0">
+                      <div className="flex items-center justify-center w-5 h-5 text-xs font-medium bg-white border rounded-full dark:bg-gray-800 dark:border-gray-700">
                         {step.number}
                       </div>
                     </div>
@@ -272,26 +283,26 @@ export const Sidebar: React.FC = () => {
                 })}
               </div>
 
-              {/* Current Project Info */}
-              <div className="p-3 mt-4 border rounded-lg bg-gray-50">
-                <p className="mb-1 text-xs font-medium text-gray-600">
+              {/* Project Info */}
+              <div className="p-3 mt-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800/40 dark:border-gray-700">
+                <p className="mb-1 text-xs font-medium text-gray-600 dark:text-gray-400">
                   Current Project
                 </p>
-                <p className="text-sm font-semibold text-gray-900 truncate">
+                <p className="text-sm font-semibold text-gray-900 truncate dark:text-gray-100">
                   {procurementState.currentProject.name}
                 </p>
                 <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     Step {procurementState.currentPhase} of 10
                   </span>
                   <span
                     className={`text-xs font-medium px-2 py-1 rounded-full ${
                       procurementState.currentProject.status === "completed"
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                         : procurementState.currentProject.status ===
                           "in_progress"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-800"
+                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-300"
                     }`}
                   >
                     {procurementState.currentProject.status}
@@ -301,9 +312,9 @@ export const Sidebar: React.FC = () => {
             </div>
           )}
 
-          {/* Secondary Navigation */}
-          <div className="pt-4 border-t border-gray-200">
-            <p className="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">
+          {/* Support Section */}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p className="px-3 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase dark:text-gray-500">
               Support
             </p>
             <div className="space-y-1">
@@ -317,8 +328,8 @@ export const Sidebar: React.FC = () => {
                     className={({ isActive }) =>
                       `group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                         isActive
-                          ? "bg-blue-50 text-blue-700"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                       }`
                     }
                   >
@@ -327,8 +338,8 @@ export const Sidebar: React.FC = () => {
                         <Icon
                           className={`h-5 w-5 shrink-0 ${
                             isActive
-                              ? "text-blue-600"
-                              : "text-gray-400 group-hover:text-gray-600"
+                              ? "text-blue-600 dark:text-blue-300"
+                              : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300"
                           }`}
                         />
                         {item.name}
@@ -342,21 +353,23 @@ export const Sidebar: React.FC = () => {
         </nav>
 
         {/* User Section */}
-        <div className="p-3 border-t border-gray-200 shrink-0">
-          <div className="flex items-center gap-3 p-2 transition-colors rounded-lg cursor-pointer hover:bg-gray-50">
+        <div className="p-3 border-t border-gray-200 dark:border-gray-700 shrink-0">
+          <div className="flex items-center gap-3 p-2 transition-colors rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
             <img
-              className="object-cover rounded-full h-9 w-9 ring-2 ring-gray-100 shrink-0"
+              className="object-cover rounded-full h-9 w-9 ring-2 ring-gray-100 dark:ring-gray-700 shrink-0"
               src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
               alt="User avatar"
             />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-100">
                 Rajesh Kumar
               </p>
-              <p className="text-xs text-gray-500 truncate">Purchase Manager</p>
+              <p className="text-xs text-gray-500 truncate dark:text-gray-400">
+                Purchase Manager
+              </p>
             </div>
             <button
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors shrink-0"
+              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300 transition-colors shrink-0"
               aria-label="Logout"
             >
               <LogOut className="w-4 h-4" />

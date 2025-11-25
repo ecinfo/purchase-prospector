@@ -122,12 +122,12 @@ const FAQItem: React.FC<{ question: string; answer: string }> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-b border-gray-100 last:border-0">
+    <div className="border-b border-gray-100 dark:border-gray-700 last:border-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-2 py-4 -mx-2 text-left transition-colors rounded-lg hover:bg-gray-50"
+        className="flex items-center justify-between w-full px-2 py-4 -mx-2 text-left transition-colors rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
       >
-        <span className="pr-4 text-sm font-medium text-gray-900">
+        <span className="pr-4 text-sm font-medium text-gray-900 dark:text-gray-100">
           {question}
         </span>
         <ChevronDown
@@ -138,7 +138,9 @@ const FAQItem: React.FC<{ question: string; answer: string }> = ({
       </button>
       {isOpen && (
         <div className="pb-4 pr-8">
-          <p className="text-sm leading-relaxed text-gray-600">{answer}</p>
+          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+            {answer}
+          </p>
         </div>
       )}
     </div>
@@ -149,7 +151,6 @@ export const HelpSupport: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // Filter FAQs based on search
   const filteredFaqs = faqs
     .map((category) => ({
       ...category,
@@ -165,34 +166,34 @@ export const HelpSupport: React.FC = () => {
     <div className="w-full p-4 mx-auto space-y-6 sm:p-6">
       {/* Header */}
       <div className="space-y-2 text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 mb-2 bg-blue-100 rounded-full">
-          <HelpCircle className="w-6 h-6 text-blue-600" />
+        <div className="inline-flex items-center justify-center w-12 h-12 mb-2 bg-blue-100 rounded-full dark:bg-blue-900/40">
+          <HelpCircle className="w-6 h-6 text-blue-600 dark:text-blue-300" />
         </div>
-        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl">
           Help & Support
         </h1>
-        <p className="max-w-xl mx-auto text-sm text-gray-600 sm:text-base">
+        <p className="max-w-xl mx-auto text-sm text-gray-600 dark:text-gray-400 sm:text-base">
           Find answers to common questions or get in touch with our support team
         </p>
       </div>
 
       {/* Search */}
-      <Card className="border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <Card className="border-blue-100 dark:border-blue-900 bg-gradient-to-r from-blue-50 dark:from-blue-900/10 to-indigo-50 dark:to-indigo-900/10">
         <CardContent className="p-4 sm:p-6">
           <div className="max-w-2xl mx-auto">
-            <div className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 shadow-sm rounded-xl focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+            <div className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 shadow-sm dark:bg-gray-900 dark:border-gray-700 rounded-xl focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 dark:focus-within:ring-blue-400">
               <Search className="w-5 h-5 text-gray-400 shrink-0" />
               <input
                 type="text"
                 placeholder="Search for help articles, FAQs..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 text-gray-900 placeholder-gray-500 bg-transparent border-none outline-none"
+                className="flex-1 text-gray-900 placeholder-gray-500 bg-transparent border-none outline-none dark:text-gray-100"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="text-xs text-gray-400 hover:text-gray-600"
+                  className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
                   Clear
                 </button>
@@ -204,65 +205,72 @@ export const HelpSupport: React.FC = () => {
 
       {/* Quick Contact Options */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="p-4 transition-shadow cursor-pointer hover:shadow-md group">
-          <div className="flex items-center gap-4">
-            <div className="p-3 transition-colors bg-green-100 rounded-lg group-hover:bg-green-200">
-              <MessageCircle className="w-5 h-5 text-green-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-gray-900">Live Chat</h3>
-              <p className="text-sm text-gray-500">Available 24/7</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-          </div>
-        </Card>
-
-        <Card className="p-4 transition-shadow cursor-pointer hover:shadow-md group">
-          <div className="flex items-center gap-4">
-            <div className="p-3 transition-colors bg-blue-100 rounded-lg group-hover:bg-blue-200">
-              <Phone className="w-5 h-5 text-blue-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-gray-900">Call Us</h3>
-              <p className="text-sm text-gray-500">+91 1800-123-4567</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-          </div>
-        </Card>
-
-        <Card className="p-4 transition-shadow cursor-pointer hover:shadow-md group">
-          <div className="flex items-center gap-4">
-            <div className="p-3 transition-colors bg-purple-100 rounded-lg group-hover:bg-purple-200">
-              <Mail className="w-5 h-5 text-purple-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-gray-900">Email Support</h3>
-              <p className="text-sm text-gray-500 truncate">
-                support@agentprocure.com
-              </p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-          </div>
-        </Card>
+        {[
+          {
+            icon: MessageCircle,
+            color: "green",
+            title: "Live Chat",
+            subtitle: "Available 24/7",
+          },
+          {
+            icon: Phone,
+            color: "blue",
+            title: "Call Us",
+            subtitle: "+91 1800-123-4567",
+          },
+          {
+            icon: Mail,
+            color: "purple",
+            title: "Email Support",
+            subtitle: "support@agentprocure.com",
+          },
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <Card
+              key={item.title}
+              className="p-4 transition-shadow cursor-pointer hover:shadow-md group dark:bg-gray-900 dark:border-gray-700"
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className={`p-3 transition-colors bg-${item.color}-100 dark:bg-${item.color}-900/30 rounded-lg group-hover:bg-${item.color}-200 dark:group-hover:bg-${item.color}-900/50`}
+                >
+                  <Icon
+                    className={`w-5 h-5 text-${item.color}-600 dark:text-${item.color}-300`}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 truncate dark:text-gray-400">
+                    {item.subtitle}
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* FAQs */}
         <div className="space-y-4 lg:col-span-2">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Frequently Asked Questions
           </h2>
 
           {filteredFaqs.length === 0 ? (
-            <Card className="p-8 text-center">
-              <div className="mb-2 text-gray-400">
+            <Card className="p-8 text-center dark:bg-gray-900 dark:border-gray-700">
+              <div className="mb-2 text-gray-400 dark:text-gray-500">
                 <Search className="w-8 h-8 mx-auto" />
               </div>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 No results found for "{searchTerm}"
               </p>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Try a different search term or browse categories
               </p>
             </Card>
@@ -272,22 +280,25 @@ export const HelpSupport: React.FC = () => {
               const isActive = activeCategory === category.category;
 
               return (
-                <Card key={category.category} className="overflow-hidden">
+                <Card
+                  key={category.category}
+                  className="overflow-hidden dark:bg-gray-900 dark:border-gray-700"
+                >
                   <button
                     onClick={() =>
                       setActiveCategory(isActive ? null : category.category)
                     }
-                    className="flex items-center justify-between w-full p-4 transition-colors hover:bg-gray-50"
+                    className="flex items-center justify-between w-full p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        <Icon className="w-4 h-4 text-gray-600" />
+                      <div className="p-2 bg-gray-100 rounded-lg dark:bg-gray-800">
+                        <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                       </div>
                       <div className="text-left">
-                        <h3 className="font-medium text-gray-900">
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">
                           {category.category}
                         </h3>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {category.questions.length} articles
                         </p>
                       </div>
@@ -300,7 +311,7 @@ export const HelpSupport: React.FC = () => {
                   </button>
 
                   {isActive && (
-                    <div className="px-4 pb-4 border-t border-gray-100">
+                    <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-800">
                       <div className="pt-2">
                         {category.questions.map((q, idx) => (
                           <FAQItem key={idx} question={q.q} answer={q.a} />
@@ -316,9 +327,11 @@ export const HelpSupport: React.FC = () => {
 
         {/* Resources Sidebar */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Resources</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Resources
+          </h2>
 
-          <Card>
+          <Card className="dark:bg-gray-900 dark:border-gray-700">
             <CardContent className="p-0">
               {resources.map((resource, idx) => {
                 const Icon = resource.icon;
@@ -326,24 +339,24 @@ export const HelpSupport: React.FC = () => {
                   <a
                     key={idx}
                     href={resource.link}
-                    className={`flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors group ${
+                    className={`flex items-center gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group ${
                       idx !== resources.length - 1
-                        ? "border-b border-gray-100"
+                        ? "border-b border-gray-100 dark:border-gray-800"
                         : ""
                     }`}
                   >
-                    <div className="p-2 transition-colors bg-gray-100 rounded-lg group-hover:bg-blue-100">
-                      <Icon className="w-4 h-4 text-gray-600 group-hover:text-blue-600" />
+                    <div className="p-2 bg-gray-100 rounded-lg dark:bg-gray-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30">
+                      <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-300" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-gray-900">
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {resource.title}
                       </h4>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {resource.description}
                       </p>
                     </div>
-                    <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
+                    <ExternalLink className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-300" />
                   </a>
                 );
               })}
@@ -351,30 +364,33 @@ export const HelpSupport: React.FC = () => {
           </Card>
 
           {/* Contact Form Card */}
-          <Card>
+          <Card className="dark:bg-gray-900 dark:border-gray-700">
             <CardHeader>
-              <h3 className="text-base font-semibold text-gray-900">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
                 Still need help?
               </h3>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Send us a message and we'll respond within 24 hours
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Subject
                 </label>
-                <Input placeholder="Brief description of your issue" />
+                <Input
+                  placeholder="Brief description of your issue"
+                  className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                />
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Message
                 </label>
                 <textarea
                   rows={4}
                   placeholder="Describe your issue in detail..."
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg resize-none dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:text-gray-200"
                 />
               </div>
               <Button className="w-full">Send Message</Button>

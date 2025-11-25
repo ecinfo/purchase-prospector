@@ -225,7 +225,7 @@ export function ProcurementProvider({ children }: { children: ReactNode }) {
   };
 
   const moveToNextPhase = () => {
-    if (state.currentPhase < 10) {
+    if (state.currentPhase < 11) {
       dispatch({ type: "SET_CURRENT_PHASE", payload: state.currentPhase + 1 });
     }
   };
