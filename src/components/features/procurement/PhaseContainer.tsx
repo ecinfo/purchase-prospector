@@ -1,6 +1,5 @@
 // src/components/features/procurement/PhaseContainer.tsx
 import React from "react";
-import { QualificationForm } from "./QualificationForm";
 import { QuantificationView } from "./QuantificationView";
 import { VendorSearch } from "./VendorSearch";
 import { useProcurement } from "../../../contexts/ProcurementContext";
@@ -11,7 +10,8 @@ import VendorOutreach from "./VendorOutreach";
 import BidCollection from "./BidCollection";
 import AuditTrail from "./AuditTrail";
 import AnalysisReport from "./AnalysisReport";
-// import { ProjectCompletion } from "./ProjectCompletion";
+import { ProjectCompletion } from "./ProjectCompletion";
+import QualificationForm from "./QualificationForm";
 
 interface PhaseContainerProps {
   currentPhase: number;
@@ -47,10 +47,10 @@ export const PhaseContainer: React.FC<PhaseContainerProps> = ({
         return <BidCollection {...phaseProps} />;
       case 9:
         return <AnalysisReport {...phaseProps} />;
-      // case 10:
-      //   return <ProjectCompletion {...phaseProps} />;
       case 10:
         return <AuditTrail {...phaseProps} />;
+      case 11:
+        return <ProjectCompletion {...phaseProps} />;
       default:
         return <div>Invalid Phase</div>;
     }
