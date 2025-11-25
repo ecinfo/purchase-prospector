@@ -43,21 +43,22 @@ const COLORS = [
 
 export const VendorAnalytics: React.FC = () => {
   return (
-    <Card>
+    <Card className="dark:bg-gray-900 dark:border-gray-700">
       <CardHeader>
-        <h3 className="text-base font-semibold text-gray-900 sm:text-lg">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg">
           Vendor Analytics
         </h3>
-        <p className="text-xs text-gray-500 sm:text-sm">
+        <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
           Vendor performance and category distribution
         </p>
       </CardHeader>
+
       <CardContent className="space-y-6">
         {/* Charts Grid */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Vendor Performance Bar Chart */}
+          {/* Bar Chart */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-700">
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Top Vendor Performance
             </h4>
             <div className="h-64 sm:h-72">
@@ -69,33 +70,39 @@ export const VendorAnalytics: React.FC = () => {
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="#f0f0f0"
+                    stroke="#e5e7eb33"
                     horizontal={false}
                   />
                   <XAxis
                     type="number"
-                    tick={{ fontSize: 11 }}
+                    tick={{ fontSize: 11, fill: "#9ca3af" }}
                     tickLine={false}
-                    axisLine={{ stroke: "#e5e7eb" }}
+                    axisLine={{ stroke: "#4b5563" }}
                   />
                   <YAxis
                     type="category"
                     dataKey="name"
-                    tick={{ fontSize: 11 }}
+                    tick={{ fontSize: 11, fill: "#9ca3af" }}
                     tickLine={false}
-                    axisLine={{ stroke: "#e5e7eb" }}
-                    width={80}
+                    axisLine={{ stroke: "#4b5563" }}
+                    width={85}
                   />
                   <Tooltip
                     contentStyle={{
                       borderRadius: "8px",
-                      border: "1px solid #e5e7eb",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                      border: "1px solid #4b5563",
+                      backgroundColor: "#020617",
+                      color: "#e5e7eb",
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.5)",
                       fontSize: "12px",
                     }}
                   />
                   <Legend
-                    wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }}
+                    wrapperStyle={{
+                      fontSize: "11px",
+                      paddingTop: "8px",
+                      color: "#9ca3af",
+                    }}
                   />
                   <Bar
                     dataKey="rating"
@@ -114,9 +121,9 @@ export const VendorAnalytics: React.FC = () => {
             </div>
           </div>
 
-          {/* Category Distribution Pie Chart */}
+          {/* Pie Chart */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-700">
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Procurement by Category
             </h4>
             <div className="h-64 sm:h-72">
@@ -128,26 +135,25 @@ export const VendorAnalytics: React.FC = () => {
                     cy="50%"
                     innerRadius={50}
                     outerRadius={80}
-                    paddingAngle={2}
                     dataKey="value"
+                    paddingAngle={2}
                     label={({ name, percent }) =>
-                      `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
+                      `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
                     }
                     labelLine={{ stroke: "#9ca3af", strokeWidth: 1 }}
                   >
-                    {categoryDistribution.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
+                    {categoryDistribution.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip
                     formatter={(value: number) => [`${value}%`, "Share"]}
                     contentStyle={{
                       borderRadius: "8px",
-                      border: "1px solid #e5e7eb",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                      border: "1px solid #4b5563",
+                      backgroundColor: "#020617",
+                      color: "#e5e7eb",
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.5)",
                       fontSize: "12px",
                     }}
                   />
@@ -158,56 +164,26 @@ export const VendorAnalytics: React.FC = () => {
         </div>
 
         {/* Vendor Stats */}
-        <div className="grid grid-cols-2 gap-3 pt-4 border-t sm:grid-cols-4 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 sm:grid-cols-4 sm:gap-4">
           {[
             { value: "2,148", label: "Total Vendors", color: "blue" },
             { value: "94%", label: "Active Vendors", color: "green" },
             { value: "4.7", label: "Avg Rating", color: "purple" },
             { value: "93%", label: "On-time Delivery", color: "orange" },
-          ].map((stat) => (
+          ].map((s) => (
             <div
-              key={stat.label}
-              className={`text-center p-3 sm:p-4 rounded-lg bg-${stat.color}-50 hover:bg-${stat.color}-100 transition-colors`}
-              style={{
-                backgroundColor:
-                  stat.color === "blue"
-                    ? "#eff6ff"
-                    : stat.color === "green"
-                    ? "#f0fdf4"
-                    : stat.color === "purple"
-                    ? "#faf5ff"
-                    : "#fff7ed",
-              }}
+              key={s.label}
+              className={`text-center p-3 sm:p-4 rounded-lg bg-${s.color}-50 dark:bg-${s.color}-900/30`}
             >
               <div
-                className="text-xl font-bold sm:text-2xl"
-                style={{
-                  color:
-                    stat.color === "blue"
-                      ? "#2563eb"
-                      : stat.color === "green"
-                      ? "#16a34a"
-                      : stat.color === "purple"
-                      ? "#9333ea"
-                      : "#ea580c",
-                }}
+                className={`text-xl font-bold sm:text-2xl text-${s.color}-600 dark:text-${s.color}-400`}
               >
-                {stat.value}
+                {s.value}
               </div>
               <div
-                className="text-xs sm:text-sm"
-                style={{
-                  color:
-                    stat.color === "blue"
-                      ? "#1d4ed8"
-                      : stat.color === "green"
-                      ? "#15803d"
-                      : stat.color === "purple"
-                      ? "#7e22ce"
-                      : "#c2410c",
-                }}
+                className={`text-xs sm:text-sm text-${s.color}-700 dark:text-${s.color}-300`}
               >
-                {stat.label}
+                {s.label}
               </div>
             </div>
           ))}

@@ -37,19 +37,20 @@ const efficiencyData = [
 
 export const PerformanceMetrics: React.FC = () => {
   return (
-    <Card className="h-full">
+    <Card className="h-full dark:bg-gray-900 dark:border-gray-700">
       <CardHeader>
-        <h3 className="text-base font-semibold text-gray-900 sm:text-lg">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg">
           Performance Trends
         </h3>
-        <p className="text-xs text-gray-500 sm:text-sm">
+        <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
           Monthly procurement performance metrics
         </p>
       </CardHeader>
+
       <CardContent className="space-y-6">
         {/* Line Chart Section */}
         <div>
-          <h4 className="mb-3 text-sm font-medium text-gray-700">
+          <h4 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
             Trend Analysis
           </h4>
           <div className="h-56 sm:h-64">
@@ -58,43 +59,53 @@ export const PerformanceMetrics: React.FC = () => {
                 data={performanceData}
                 margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb33" />
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
                   tickLine={false}
-                  axisLine={{ stroke: "#e5e7eb" }}
+                  axisLine={{ stroke: "#4b5563" }}
                 />
                 <YAxis
                   yAxisId="left"
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
                   tickLine={false}
-                  axisLine={{ stroke: "#e5e7eb" }}
+                  axisLine={{ stroke: "#4b5563" }}
                   width={35}
                 />
                 <YAxis
                   yAxisId="right"
                   orientation="right"
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
                   tickLine={false}
-                  axisLine={{ stroke: "#e5e7eb" }}
+                  axisLine={{ stroke: "#4b5563" }}
                   width={35}
                 />
+
                 <Tooltip
-                  formatter={(value: number, name: string) => {
-                    if (name === "Procurement") return [`${value} days`, name];
-                    return [`${value}%`, name];
-                  }}
+                  formatter={(value: number, name: string) =>
+                    name === "Procurement"
+                      ? [`${value} days`, name]
+                      : [`${value}%`, name]
+                  }
                   contentStyle={{
                     borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    border: "1px solid #4b5563",
+                    backgroundColor: "#020617",
+                    color: "#e5e7eb",
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.5)",
                     fontSize: "12px",
                   }}
                 />
+
                 <Legend
-                  wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }}
+                  wrapperStyle={{
+                    fontSize: "11px",
+                    paddingTop: "8px",
+                    color: "#9ca3af",
+                  }}
                 />
+
                 <Line
                   yAxisId="left"
                   type="monotone"
@@ -131,8 +142,8 @@ export const PerformanceMetrics: React.FC = () => {
         </div>
 
         {/* Bar Chart Section */}
-        <div className="pt-4 border-t">
-          <h4 className="mb-3 text-sm font-medium text-gray-700">
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <h4 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
             Time Efficiency (Days)
           </h4>
           <div className="h-48 sm:h-56">
@@ -144,43 +155,47 @@ export const PerformanceMetrics: React.FC = () => {
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#f0f0f0"
+                  stroke="#e5e7eb33"
                   horizontal={false}
                 />
                 <XAxis
                   type="number"
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
                   tickLine={false}
-                  axisLine={{ stroke: "#e5e7eb" }}
+                  axisLine={{ stroke: "#4b5563" }}
                 />
                 <YAxis
                   type="category"
                   dataKey="category"
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
                   tickLine={false}
-                  axisLine={{ stroke: "#e5e7eb" }}
+                  axisLine={{ stroke: "#4b5563" }}
                   width={65}
                 />
+
                 <Tooltip
-                  formatter={(value: number, name: string) => {
-                    return [`${value} days`, name];
-                  }}
-                  labelFormatter={(label, payload) => {
-                    if (payload && payload[0]) {
-                      return payload[0].payload.fullName;
-                    }
-                    return label;
-                  }}
+                  formatter={(value: number) => [`${value} days`, ""]}
+                  labelFormatter={(label, payload) =>
+                    payload && payload[0] ? payload[0].payload.fullName : label
+                  }
                   contentStyle={{
                     borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    border: "1px solid #4b5563",
+                    backgroundColor: "#020617",
+                    color: "#f3f4f6",
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.5)",
                     fontSize: "12px",
                   }}
                 />
+
                 <Legend
-                  wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }}
+                  wrapperStyle={{
+                    fontSize: "11px",
+                    paddingTop: "8px",
+                    color: "#9ca3af",
+                  }}
                 />
+
                 <Bar
                   dataKey="manual"
                   name="Manual"
@@ -199,24 +214,30 @@ export const PerformanceMetrics: React.FC = () => {
         </div>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-3 gap-2 pt-4 border-t sm:gap-4">
-          <div className="p-2 text-center rounded-lg sm:p-3 bg-purple-50">
-            <div className="text-lg font-bold text-purple-600 sm:text-xl">
+        <div className="grid grid-cols-3 gap-2 pt-4 border-t border-gray-200 dark:border-gray-700 sm:gap-4">
+          <div className="p-2 text-center rounded-lg sm:p-3 bg-purple-50 dark:bg-purple-900/30">
+            <div className="text-lg font-bold text-purple-600 dark:text-purple-400 sm:text-xl">
               45%
             </div>
-            <div className="text-xs text-purple-700">Time Reduced</div>
+            <div className="text-xs text-purple-700 dark:text-purple-300">
+              Time Reduced
+            </div>
           </div>
-          <div className="p-2 text-center rounded-lg sm:p-3 bg-green-50">
-            <div className="text-lg font-bold text-green-600 sm:text-xl">
+          <div className="p-2 text-center rounded-lg sm:p-3 bg-green-50 dark:bg-green-900/30">
+            <div className="text-lg font-bold text-green-600 dark:text-green-400 sm:text-xl">
               94%
             </div>
-            <div className="text-xs text-green-700">Response Rate</div>
+            <div className="text-xs text-green-700 dark:text-green-300">
+              Response Rate
+            </div>
           </div>
-          <div className="p-2 text-center rounded-lg sm:p-3 bg-orange-50">
-            <div className="text-lg font-bold text-orange-600 sm:text-xl">
+          <div className="p-2 text-center rounded-lg sm:p-3 bg-orange-50 dark:bg-orange-900/30">
+            <div className="text-lg font-bold text-orange-600 dark:text-orange-400 sm:text-xl">
               25%
             </div>
-            <div className="text-xs text-orange-700">Cost Savings</div>
+            <div className="text-xs text-orange-700 dark:text-orange-300">
+              Cost Savings
+            </div>
           </div>
         </div>
       </CardContent>
