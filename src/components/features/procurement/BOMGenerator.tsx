@@ -248,68 +248,59 @@ const BOMGenerator: React.FC<BOMGeneratorProps> = ({ onNext, onPrevious }) => {
     common: { title: "Common Area & Amenities", count: 6 },
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-IN", {
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       maximumFractionDigits: 0,
     }).format(amount);
-  };
 
-  const calculateTotalCost = () => {
-    let total = 0;
-    Object.values(bomData).forEach((category) => {
-      category.forEach((item) => {
-        total += item.totalPrice;
-      });
-    });
-    return total;
-  };
+  const totalCost = Object.values(bomData)
+    .flat()
+    .reduce((sum, item) => sum + item.totalPrice, 0);
 
-  const totalCost = calculateTotalCost();
-
-  const toggleSection = (section: keyof typeof expandedSections) => {
+  const toggleSection = (section: keyof typeof expandedSections) =>
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
 
-  const exportBOM = () => {
-    alert("Exporting BOM as CSV...");
-  };
+  const exportBOM = () => alert("Exporting BOM as CSV...");
 
   return (
-    <div className="min-h-screen p-4 bg-gray-50 md:p-6">
+    <div className="min-h-screen p-4 md:p-6 bg-gray-50 dark:bg-gray-900">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="p-6 mb-6 bg-white rounded-lg shadow-sm">
+        <div className="p-6 mb-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-2">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Package className="w-6 h-6 text-blue-600" />
+              <div className="p-2 bg-blue-100 rounded-lg dark:bg-blue-900">
+                <Package className="w-6 h-6 text-blue-600 dark:text-blue-300" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Bill of Materials (BoM)
                 </h1>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
                   AI-generated comprehensive procurement list with 24 line items
                 </p>
               </div>
             </div>
+
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {formatCurrency(totalCost)}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-300">
                   Total Estimated Cost
                 </div>
               </div>
               <button
                 onClick={exportBOM}
-                className="flex items-center gap-2 px-4 py-2 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex items-center gap-2 px-4 py-2 transition-colors border border-gray-300 rounded-lg dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <Download className="w-4 h-4" />
-                <span className="text-sm font-medium">Export BoM</span>
+                <Download className="w-4 h-4 dark:text-gray-200" />
+                <span className="text-sm font-medium dark:text-gray-200">
+                  Export BoM
+                </span>
               </button>
             </div>
           </div>
@@ -320,12 +311,14 @@ const BOMGenerator: React.FC<BOMGeneratorProps> = ({ onNext, onPrevious }) => {
           {Object.entries(categoryInfo).map(([key, { title, count }]) => (
             <div
               key={key}
-              className="p-6 text-center bg-white border border-gray-200 rounded-lg shadow-sm"
+              className="p-6 text-center bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
             >
-              <div className="mb-2 text-4xl font-bold text-blue-600">
+              <div className="mb-2 text-4xl font-bold text-blue-600 dark:text-blue-300">
                 {count}
               </div>
-              <div className="text-sm text-gray-600">{title}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">
+                {title}
+              </div>
             </div>
           ))}
         </div>
@@ -335,25 +328,25 @@ const BOMGenerator: React.FC<BOMGeneratorProps> = ({ onNext, onPrevious }) => {
           {Object.entries(bomData).map(([key, items]) => (
             <div
               key={key}
-              className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm"
+              className="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
             >
               {/* Section Header */}
               <button
                 onClick={() =>
                   toggleSection(key as keyof typeof expandedSections)
                 }
-                className="flex items-center justify-between w-full px-6 py-4 transition-colors hover:bg-gray-50"
+                className="flex items-center justify-between w-full px-6 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <div className="flex items-center gap-3">
                   {expandedSections[key as keyof typeof expandedSections] ? (
-                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                    <ChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-200" />
                   ) : (
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
+                    <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-200" />
                   )}
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                     {categoryInfo[key as keyof typeof categoryInfo].title}
                   </h2>
-                  <span className="px-2 py-1 text-sm text-gray-500 bg-gray-100 rounded">
+                  <span className="px-2 py-1 text-sm text-gray-500 bg-gray-100 rounded dark:text-gray-300 dark:bg-gray-700">
                     {categoryInfo[key as keyof typeof categoryInfo].count} items
                   </span>
                 </div>
@@ -361,55 +354,52 @@ const BOMGenerator: React.FC<BOMGeneratorProps> = ({ onNext, onPrevious }) => {
 
               {/* Section Content */}
               {expandedSections[key as keyof typeof expandedSections] && (
-                <div className="border-t border-gray-200">
+                <div className="border-t border-gray-200 dark:border-gray-700">
                   <div className="overflow-x-auto">
                     <table className="w-full">
-                      <thead className="border-b border-gray-200 bg-gray-50">
+                      <thead className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
                         <tr>
-                          <th className="px-6 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase">
-                            Item Name
-                          </th>
-                          <th className="px-6 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase">
-                            Quantity
-                          </th>
-                          <th className="px-6 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase">
-                            Specification
-                          </th>
-                          <th className="px-6 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase">
-                            Unit Price
-                          </th>
-                          <th className="px-6 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase">
-                            Total Price
-                          </th>
-                          <th className="px-6 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase">
-                            Delivery Phase
-                          </th>
+                          {[
+                            "Item Name",
+                            "Quantity",
+                            "Specification",
+                            "Unit Price",
+                            "Total Price",
+                            "Delivery Phase",
+                          ].map((head) => (
+                            <th
+                              key={head}
+                              className="px-6 py-3 text-xs font-semibold tracking-wider text-left text-gray-600 uppercase dark:text-gray-300"
+                            >
+                              {head}
+                            </th>
+                          ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {items.map((item, idx) => (
                           <tr
                             key={idx}
-                            className="transition-colors hover:bg-gray-50"
+                            className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
                           >
-                            <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                               {item.name}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                               {parseInt(item.quantity).toLocaleString()}{" "}
                               {item.unit}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-600">
+                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
                               {item.spec}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-900">
+                            <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                               {formatCurrency(item.unitPrice)}
                             </td>
-                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                               {formatCurrency(item.totalPrice)}
                             </td>
                             <td className="px-6 py-4">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
                                 {item.phase}
                               </span>
                             </td>
@@ -424,22 +414,19 @@ const BOMGenerator: React.FC<BOMGeneratorProps> = ({ onNext, onPrevious }) => {
           ))}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between p-6 mt-8 bg-white rounded-lg shadow-sm">
+        {/* Footer Action Buttons */}
+        <div className="flex items-center justify-between p-6 mt-8 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <button
             onClick={onPrevious}
-            className="flex items-center gap-2 px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-200"
           >
-            <span className="text-sm font-medium">← Back</span>
+            ← Back
           </button>
           <button
             onClick={onNext}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 dark:bg-blue-600 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-blue-700 transition-colors"
           >
-            <span className="text-sm font-medium">
-              Proceed to Vendor Discovery
-            </span>
-            <span className="text-sm">→</span>
+            Proceed to Vendor Discovery →
           </button>
         </div>
       </div>
