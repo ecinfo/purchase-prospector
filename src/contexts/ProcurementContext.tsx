@@ -150,7 +150,6 @@ function procurementReducer(
             }
           : null,
       };
-
     case "SET_RFPS":
       return {
         ...state,

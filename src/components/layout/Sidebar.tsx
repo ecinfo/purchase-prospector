@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/layout/Sidebar.tsx
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React, { useEffect } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   Home,
   Building,
@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { useApp } from "../../contexts/AppContext";
 import { useProcurement } from "../../contexts/ProcurementContext";
+import { logoutUser } from "../../store/slices/authSlice";
+import { useAppDispatch } from "../../hooks/redux";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
@@ -100,11 +102,30 @@ const secondaryNav = [
 export const Sidebar: React.FC = () => {
   const { state, dispatch } = useApp();
   const { state: procurementState } = useProcurement();
+  const reduxDispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const closeSidebar = () => {
-    if (window.innerWidth < 1024) {
+  // Auto-close sidebar when route changes on mobile
+  useEffect(() => {
+    if (state.isMobile) {
       dispatch({ type: "SET_SIDEBAR_OPEN", payload: false });
     }
+  }, [location.pathname, state.isMobile, dispatch]);
+
+  const closeSidebar = () => {
+    if (state.isMobile) {
+      dispatch({ type: "SET_SIDEBAR_OPEN", payload: false });
+    }
+  };
+
+  const handleLogout = () => {
+    reduxDispatch(logoutUser());
+    navigate("/login", { replace: true });
+  };
+
+  const toggleSidebar = () => {
+    dispatch({ type: "SET_SIDEBAR_OPEN", payload: !state.sidebarOpen });
   };
 
   const getStepStatus = (stepNumber: number) => {
@@ -147,10 +168,10 @@ export const Sidebar: React.FC = () => {
   return (
     <>
       {/* Mobile overlay */}
-      {state.sidebarOpen && (
+      {state.sidebarOpen && state.isMobile && (
         <div
           className="fixed inset-0 z-40 transition-opacity bg-gray-900/50 backdrop-blur-sm dark:bg-black/60 lg:hidden"
-          onClick={() => dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })}
+          onClick={closeSidebar}
           aria-hidden="true"
         />
       )}
@@ -177,9 +198,7 @@ export const Sidebar: React.FC = () => {
             </span>
           </div>
           <button
-            onClick={() =>
-              dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })
-            }
+            onClick={toggleSidebar}
             className="p-2 -mr-2 text-gray-400 transition-colors rounded-lg lg:hidden hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
             aria-label="Close sidebar"
           >
@@ -354,7 +373,7 @@ export const Sidebar: React.FC = () => {
 
         {/* User Section */}
         <div className="p-3 border-t border-gray-200 dark:border-gray-700 shrink-0">
-          <div className="flex items-center gap-3 p-2 transition-colors rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div className="flex items-center gap-3 p-2 transition-colors rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
             <img
               className="object-cover rounded-full h-9 w-9 ring-2 ring-gray-100 dark:ring-gray-700 shrink-0"
               src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
@@ -368,7 +387,9 @@ export const Sidebar: React.FC = () => {
                 Purchase Manager
               </p>
             </div>
+
             <button
+              onClick={handleLogout}
               className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300 transition-colors shrink-0"
               aria-label="Logout"
             >
