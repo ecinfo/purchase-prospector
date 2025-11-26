@@ -1,7 +1,6 @@
 // src/contexts/AppContext.tsx
 import React, {
   createContext,
-  useContext,
   useReducer,
   useEffect,
   type ReactNode,
@@ -95,10 +94,4 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
-export function useApp() {
-  const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error("useApp must be used within an AppProvider");
-  }
-  return context;
-}
+export { AppContext };

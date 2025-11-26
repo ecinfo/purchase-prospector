@@ -19,10 +19,10 @@ import {
   CheckCircle,
   ListChecks,
 } from "lucide-react";
-import { useApp } from "../../contexts/AppContext";
 import { useProcurement } from "../../contexts/ProcurementContext";
 import { logoutUser } from "../../store/slices/authSlice";
 import { useAppDispatch } from "../../hooks/redux";
+import { AppContext } from "../../contexts/AppContext";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
@@ -100,7 +100,7 @@ const secondaryNav = [
 ];
 
 export const Sidebar: React.FC = () => {
-  const { state, dispatch } = useApp();
+  const { state, dispatch } = React.useContext(AppContext)!;
   const { state: procurementState } = useProcurement();
   const reduxDispatch = useAppDispatch();
   const navigate = useNavigate();

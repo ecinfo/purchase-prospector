@@ -10,13 +10,13 @@ import {
   User,
   Settings,
 } from "lucide-react";
-import { useApp } from "../../contexts/AppContext";
 import { logoutUser } from "../../store/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../contexts/AppContext";
 
 export const Header: React.FC = () => {
-  const { dispatch } = useApp();
+  const { dispatch } = React.useContext(AppContext)!;
   const reduxDispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);

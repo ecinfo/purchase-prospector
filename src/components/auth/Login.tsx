@@ -30,10 +30,10 @@ export const Login: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const fillDemoCredentials = () => {
-    setFormData({ email: "demo@company.com", password: "password" });
-    dispatch(clearError());
-  };
+  // const fillDemoCredentials = () => {
+  //   setFormData({ email: "demo@company.com", password: "password" });
+  //   dispatch(clearError());
+  // };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-6 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -140,7 +140,7 @@ export const Login: React.FC = () => {
                 Sign In
               </Button>
 
-              <Button
+              {/* <Button
                 type="button"
                 variant="outline"
                 className="w-full dark:border-gray-600"
@@ -148,7 +148,7 @@ export const Login: React.FC = () => {
                 disabled={isLoading}
               >
                 Use Demo Credentials
-              </Button>
+              </Button> */}
             </form>
 
             {/* Footer Link */}
