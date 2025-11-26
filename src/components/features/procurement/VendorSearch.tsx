@@ -192,7 +192,7 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
     const matchesSearch =
       vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vendor.specializations?.some((spec) =>
-        spec.item.toLowerCase().includes(searchTerm.toLowerCase())
+        String(spec.item).toLowerCase().includes(searchTerm.toLowerCase())
       );
     const matchesCategory =
       !selectedCategory ||
@@ -209,7 +209,7 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
       } else {
         const vendor = vendors.find((v) => v.id === vendorId);
         const defaultItems =
-          vendor?.specializations?.map((spec) => spec.item) || [];
+          vendor?.specializations?.map((spec) => String(spec.item)) || [];
         return [
           ...prev,
           {
@@ -504,7 +504,9 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                             <div className="space-y-2">
                               {specializations.map((spec) => {
                                 const isItemSelected =
-                                  selectedData?.items.includes(spec.item);
+                                  selectedData?.items.includes(
+                                    String(spec.item)
+                                  );
                                 return (
                                   <div
                                     key={spec.item}
@@ -517,10 +519,11 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                                         const newItems = e.target.checked
                                           ? [
                                               ...(selectedData?.items || []),
-                                              spec.item,
+                                              String(spec.item),
                                             ]
                                           : (selectedData?.items || []).filter(
-                                              (item) => item !== spec.item
+                                              (item) =>
+                                                item !== String(spec.item)
                                             );
                                         updateVendorItems(vendor.id, newItems);
                                       }}
@@ -548,7 +551,7 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                                           onChange={(e) =>
                                             updateItemQuantity(
                                               vendor.id,
-                                              spec.item,
+                                              String(spec.item),
                                               parseInt(e.target.value) || 0
                                             )
                                           }
@@ -565,7 +568,7 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                                           onChange={(e) =>
                                             updateItemSpecification(
                                               vendor.id,
-                                              spec.item,
+                                              String(spec.item),
                                               e.target.value
                                             )
                                           }

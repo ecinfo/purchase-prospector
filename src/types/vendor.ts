@@ -1,4 +1,5 @@
 // src/types/vendor.ts
+// src/types/vendor.ts
 
 import type { BaseEntity } from "./common";
 
@@ -28,7 +29,18 @@ export interface Vendor extends BaseEntity {
         communication: number;
     };
     source: 'indiamart' | 'tradeindia' | 'udaan' | 'justdial' | 'google' | 'constructconnect';
+
+    // 🔥 ADD THESE FIELDS FOR RFP WORKFLOW
+    selectedItems?: (string | number)[];
+    specializations?: {
+        item: string | number;
+        category: string;
+    }[];
+
+    quantities?: Record<string | number, number>;
+    specifications?: Record<string | number, string>;
 }
+
 
 export interface ContactPerson {
     name: string;

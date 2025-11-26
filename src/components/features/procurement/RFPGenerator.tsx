@@ -16,6 +16,15 @@ interface RFPGeneratorProps {
   onPrevious?: () => void;
 }
 
+interface ItemDetail {
+  item: string;
+  vendor: string;
+  quantity: number;
+  specifications: string;
+  vendorRating: number;
+  vendorId: string;
+}
+
 const RFPGenerator: React.FC<RFPGeneratorProps> = ({ onNext, onPrevious }) => {
   const { state } = useProcurement();
 
@@ -32,9 +41,9 @@ const RFPGenerator: React.FC<RFPGeneratorProps> = ({ onNext, onPrevious }) => {
     const categoryMap = new Map();
 
     selectedVendors.forEach((vendor) => {
-      vendor.selectedItems?.forEach((itemName) => {
+      vendor.selectedItems?.forEach((itemName: string | number) => {
         const itemSpec = vendor.specializations?.find(
-          (spec) => spec.item === itemName
+          (spec: { item: string | number }) => spec.item === itemName
         );
         const category = itemSpec?.category || "Other";
 
@@ -70,11 +79,14 @@ const RFPGenerator: React.FC<RFPGeneratorProps> = ({ onNext, onPrevious }) => {
 
     // Convert to array and calculate values
     return Array.from(categoryMap.values()).map((pkg) => {
-      const estimatedValue = pkg.itemDetails.reduce((sum, item) => {
-        // Simple estimation based on vendor rating and quantity
-        const baseValue = item.quantity * 10000;
-        return sum + baseValue * (item.vendorRating / 5);
-      }, 0);
+      const estimatedValue = pkg.itemDetails.reduce(
+        (sum: number, item: { quantity: number; vendorRating: number }) => {
+          // Simple estimation based on vendor rating and quantity
+          const baseValue = item.quantity * 10000;
+          return sum + baseValue * (item.vendorRating / 5);
+        },
+        0
+      );
 
       return {
         ...pkg,
@@ -101,7 +113,7 @@ const RFPGenerator: React.FC<RFPGeneratorProps> = ({ onNext, onPrevious }) => {
   };
 
   const totalItems = rfpPackages.reduce((sum, pkg) => sum + pkg.items, 0);
-  const totalVendors = rfpPackages.reduce((sum, pkg) => sum + pkg.vendors, 0);
+  // const totalVendors = rfpPackages.reduce((sum, pkg) => sum + pkg.vendors, 0);
   const totalValue = rfpPackages.reduce((sum, pkg) => sum + pkg.value, 0);
 
   return (
@@ -209,6 +221,7 @@ const RFPGenerator: React.FC<RFPGeneratorProps> = ({ onNext, onPrevious }) => {
             </div>
 
             {/* RFP Package Cards */}
+            {/* RFP Package Cards */}
             <div className="mb-6 space-y-4">
               {rfpPackages.map((pkg) => (
                 <div
@@ -247,18 +260,10 @@ const RFPGenerator: React.FC<RFPGeneratorProps> = ({ onNext, onPrevious }) => {
                         </span>
                       </div>
 
-                      {/* Item Details */}
-                      <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">
-                            Items in this package:
-                          </span>
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
-                            {pkg.category}
-                          </span>
-                        </div>
-                        <div className="space-y-2">
-                          {pkg.itemDetails.map((item, index) => (
+                      {/* FIXED ITEM DETAILS */}
+                      <div className="mt-4 space-y-2">
+                        {pkg.itemDetails.map(
+                          (item: ItemDetail, index: number) => (
                             <div
                               key={index}
                               className="flex items-center justify-between p-2 text-sm rounded bg-gray-50 dark:bg-gray-700"
@@ -271,6 +276,7 @@ const RFPGenerator: React.FC<RFPGeneratorProps> = ({ onNext, onPrevious }) => {
                                 <span className="text-gray-600 dark:text-gray-300">
                                   {item.vendor}
                                 </span>
+
                                 {item.specifications && (
                                   <>
                                     <span className="mx-2 text-gray-400">
@@ -282,14 +288,15 @@ const RFPGenerator: React.FC<RFPGeneratorProps> = ({ onNext, onPrevious }) => {
                                   </>
                                 )}
                               </div>
+
                               <div className="flex items-center gap-4">
                                 <span className="text-gray-600 dark:text-gray-300">
                                   Qty: {item.quantity}
                                 </span>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                          )
+                        )}
                       </div>
                     </div>
                   </div>
