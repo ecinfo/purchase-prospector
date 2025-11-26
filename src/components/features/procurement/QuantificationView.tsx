@@ -376,7 +376,6 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
             </h3>
           </CardHeader>
           <CardContent className="space-y-3">
-            // eslint-disable-next-line react-hooks/static-components
             <EditableField
               section="infrastructure"
               field="coveredParking"

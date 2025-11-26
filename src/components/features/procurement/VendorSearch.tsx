@@ -1,19 +1,33 @@
+// src/components/VendorSearch.tsx
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader } from "../../ui/Card";
 import { Button } from "../../ui/Button";
+import { Input } from "../../ui/Input";
 import { useProcurement } from "../../../contexts/ProcurementContext";
 import { VENDOR_CERTIFICATIONS } from "../../../utils/constants";
-import { Star, MapPin, CheckCircle, Phone, Mail } from "lucide-react";
+import {
+  Star,
+  MapPin,
+  CheckCircle,
+  Phone,
+  Mail,
+  Building,
+  Package,
+} from "lucide-react";
 import type { Vendor } from "../../../types";
 
-/* --- SAMPLE VENDORS (same as your data) --- */
+/* --- ENHANCED SAMPLE VENDORS WITH SPECIALIZATIONS --- */
 const sampleVendors: Vendor[] = [
-  // ... same vendor sample data
   {
     id: "1",
     name: "Shree Cement Ltd.",
     type: "manufacturer",
     categories: ["Cement & Concrete"],
+    specializations: [
+      { item: "OPC 53 Grade Cement", category: "Cement" },
+      { item: "PPC Cement", category: "Cement" },
+      { item: "Ready Mix Concrete", category: "Concrete" },
+    ],
     location: {
       city: "Pune",
       state: "Maharashtra",
@@ -44,6 +58,11 @@ const sampleVendors: Vendor[] = [
     name: "TATA Steel",
     type: "manufacturer",
     categories: ["Steel & Reinforcement"],
+    specializations: [
+      { item: "TOR Steel TMT Bars", category: "Steel" },
+      { item: "Structural Steel", category: "Steel" },
+      { item: "Rebar", category: "Steel" },
+    ],
     location: {
       city: "Mumbai",
       state: "Maharashtra",
@@ -69,7 +88,84 @@ const sampleVendors: Vendor[] = [
     createdAt: "2018-05-20",
     updatedAt: "2024-01-15",
   },
+  {
+    id: "3",
+    name: "UltraTech Cement",
+    type: "manufacturer",
+    categories: ["Cement & Concrete"],
+    specializations: [
+      { item: "White Cement", category: "Cement" },
+      { item: "Waterproof Cement", category: "Cement" },
+      { item: "RMC Plants", category: "Concrete" },
+    ],
+    location: {
+      city: "Ahmedabad",
+      state: "Gujarat",
+      country: "India",
+      pincode: "380001",
+    },
+    certifications: ["ISO 9001", "BIS Certified", "Green Pro Certified"],
+    rating: 4.7,
+    totalProjects: 389,
+    experience: 20,
+    paymentTerms: ["30 Days Credit", "Advance + Balance"],
+    minOrderValue: 750000,
+    contact: {
+      primary: {
+        name: "Amit Patel",
+        email: "amit.patel@ultratech.com",
+        phone: "+91-9876543212",
+        designation: "Regional Head",
+      },
+    },
+    performance: { onTimeDelivery: 96, qualityRating: 4.6, communication: 4.5 },
+    source: "indiamart",
+    createdAt: "2019-03-10",
+    updatedAt: "2024-01-15",
+  },
+  {
+    id: "4",
+    name: "Jindal Steel & Power",
+    type: "manufacturer",
+    categories: ["Steel & Reinforcement"],
+    specializations: [
+      { item: "TMT Bars", category: "Steel" },
+      { item: "Structural Steel", category: "Steel" },
+      { item: "Wire Rods", category: "Steel" },
+    ],
+    location: {
+      city: "Raigarh",
+      state: "Chhattisgarh",
+      country: "India",
+      pincode: "496001",
+    },
+    certifications: ["ISO 9001", "ISO 14001", "BIS Certified"],
+    rating: 4.8,
+    totalProjects: 421,
+    experience: 22,
+    paymentTerms: ["45 Days Credit", "LC at Sight"],
+    minOrderValue: 1200000,
+    contact: {
+      primary: {
+        name: "Vikram Singh",
+        email: "vikram.singh@jindal.com",
+        phone: "+91-9876543213",
+        designation: "Sales Director",
+      },
+    },
+    performance: { onTimeDelivery: 97, qualityRating: 4.7, communication: 4.6 },
+    source: "tradeindia",
+    createdAt: "2017-08-15",
+    updatedAt: "2024-01-15",
+  },
 ];
+
+interface SelectedVendor {
+  vendorId: string;
+  items: string[];
+  quantities: { [item: string]: number };
+  specifications: { [item: string]: string };
+}
 
 interface VendorSearchProps {
   onNext: () => void;
@@ -80,34 +176,132 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
   onNext,
   onPrevious,
 }) => {
-  const { dispatch } = useProcurement();
+  const { dispatch, state } = useProcurement();
   const [vendors] = useState<Vendor[]>(sampleVendors);
-  const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
+  const [selectedVendors, setSelectedVendors] = useState<SelectedVendor[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  // Get categories from current BOM
+  const bomCategories =
+    state.currentProject?.bom.map((item) => item.category) || [];
+  const uniqueCategories = [...new Set(bomCategories)];
+
+  // Filter vendors based on search and category
+  const filteredVendors = vendors.filter((vendor) => {
+    const matchesSearch =
+      vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vendor.specializations?.some((spec) =>
+        spec.item.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    const matchesCategory =
+      !selectedCategory ||
+      vendor.categories.some((cat) => cat.includes(selectedCategory));
+
+    return matchesSearch && matchesCategory;
+  });
 
   const toggleVendorSelection = (vendorId: string) => {
+    setSelectedVendors((prev) => {
+      const existing = prev.find((v) => v.vendorId === vendorId);
+      if (existing) {
+        return prev.filter((v) => v.vendorId !== vendorId);
+      } else {
+        const vendor = vendors.find((v) => v.id === vendorId);
+        const defaultItems =
+          vendor?.specializations?.map((spec) => spec.item) || [];
+        return [
+          ...prev,
+          {
+            vendorId,
+            items: defaultItems,
+            quantities: {},
+            specifications: {},
+          },
+        ];
+      }
+    });
+  };
+
+  const updateVendorItems = (vendorId: string, items: string[]) => {
     setSelectedVendors((prev) =>
-      prev.includes(vendorId)
-        ? prev.filter((id) => id !== vendorId)
-        : [...prev, vendorId]
+      prev.map((vendor) =>
+        vendor.vendorId === vendorId ? { ...vendor, items } : vendor
+      )
     );
   };
 
-  const handleProceed = () => {
-    const selectedVendorData = vendors.filter((v) =>
-      selectedVendors.includes(v.id)
+  const updateItemQuantity = (
+    vendorId: string,
+    item: string,
+    quantity: number
+  ) => {
+    setSelectedVendors((prev) =>
+      prev.map((vendor) =>
+        vendor.vendorId === vendorId
+          ? {
+              ...vendor,
+              quantities: { ...vendor.quantities, [item]: quantity },
+            }
+          : vendor
+      )
     );
+  };
+
+  const updateItemSpecification = (
+    vendorId: string,
+    item: string,
+    spec: string
+  ) => {
+    setSelectedVendors((prev) =>
+      prev.map((vendor) =>
+        vendor.vendorId === vendorId
+          ? {
+              ...vendor,
+              specifications: { ...vendor.specifications, [item]: spec },
+            }
+          : vendor
+      )
+    );
+  };
+
+  const isVendorSelected = (vendorId: string) => {
+    return selectedVendors.some((v) => v.vendorId === vendorId);
+  };
+
+  const getSelectedVendor = (vendorId: string) => {
+    return selectedVendors.find((v) => v.vendorId === vendorId);
+  };
+
+  const handleProceed = () => {
+    const selectedVendorData = vendors
+      .filter((v) => selectedVendors.some((sv) => sv.vendorId === v.id))
+      .map((vendor) => {
+        const selectedData = getSelectedVendor(vendor.id);
+        return {
+          ...vendor,
+          selectedItems: selectedData?.items || [],
+          quantities: selectedData?.quantities || {},
+          specifications: selectedData?.specifications || {},
+        };
+      });
+
     dispatch({ type: "SET_VENDORS", payload: selectedVendorData });
     onNext();
+  };
+
+  const getVendorSpecializations = (vendor: Vendor) => {
+    return vendor.specializations || [];
   };
 
   return (
     <Card className="w-full bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
       <CardHeader className="p-4 sm:p-6">
         <h2 className="text-lg font-bold text-gray-900 sm:text-xl dark:text-white">
-          Phase 5: Vendor Search
+          Phase 5: Vendor Search & Item Selection
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-300 sm:text-base">
-          AI-matched vendors from 6 integrated directories (2000+ vendors)
+          Select vendors and specify items/quantities for procurement
         </p>
       </CardHeader>
 
@@ -118,10 +312,44 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
             <Card className="border border-gray-200 shadow-none dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
               <CardContent className="p-3 sm:p-4">
                 <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-100 sm:mb-4 sm:text-base">
-                  Filters
+                  Filters & Search
                 </h3>
 
                 <div className="space-y-4">
+                  {/* Search */}
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Search Vendors/Items
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Search by company or item..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full text-sm"
+                    />
+                  </div>
+
+                  {/* Category Filter */}
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Material Category
+                    </label>
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="w-full px-3 py-2 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    >
+                      <option value="">All Categories</option>
+                      {uniqueCategories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Rating Filter */}
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                       Minimum Rating
@@ -133,6 +361,7 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                     </select>
                   </div>
 
+                  {/* Experience Filter */}
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                       Experience
@@ -144,12 +373,13 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                     </select>
                   </div>
 
+                  {/* Certifications */}
                   <div>
                     <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                       Certifications
                     </label>
-                    <div className="space-y-1">
-                      {VENDOR_CERTIFICATIONS.slice(0, 3).map((cert) => (
+                    <div className="space-y-1 overflow-y-auto max-h-32">
+                      {VENDOR_CERTIFICATIONS.map((cert) => (
                         <label
                           key={cert}
                           className="flex items-center text-sm text-gray-700 dark:text-gray-300"
@@ -170,26 +400,76 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
 
           {/* ----- VENDORS LIST ----- */}
           <div className="order-1 lg:order-2 lg:col-span-3">
+            {/* Selection Summary */}
+            {selectedVendors.length > 0 && (
+              <div className="p-4 mb-4 border border-green-200 rounded-lg bg-green-50 dark:bg-green-900/20 dark:border-green-800">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-green-800 dark:text-green-300">
+                      Selected Vendors: {selectedVendors.length}
+                    </h4>
+                    <p className="text-sm text-green-700 dark:text-green-400">
+                      {selectedVendors
+                        .map((sv) => {
+                          const vendor = vendors.find(
+                            (v) => v.id === sv.vendorId
+                          );
+                          return vendor?.name;
+                        })
+                        .join(", ")}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-green-800 dark:text-green-300">
+                      {selectedVendors.reduce(
+                        (total, sv) => total + sv.items.length,
+                        0
+                      )}
+                    </div>
+                    <div className="text-sm text-green-700 dark:text-green-400">
+                      Items Selected
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 gap-4">
-              {vendors.map((vendor) => {
-                const isSelected = selectedVendors.includes(vendor.id);
+              {filteredVendors.map((vendor) => {
+                const isSelected = isVendorSelected(vendor.id);
+                const selectedData = getSelectedVendor(vendor.id);
+                const specializations = getVendorSpecializations(vendor);
+
                 return (
                   <Card
                     key={vendor.id}
-                    className={`p-4 transition-all cursor-pointer border ${
+                    className={`p-4 transition-all border ${
                       isSelected
-                        ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900"
+                        ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20"
                         : "border-gray-200 dark:border-gray-700 hover:shadow-sm dark:hover:bg-gray-800"
                     }`}
-                    onClick={() => toggleVendorSelection(vendor.id)}
                   >
                     <div className="flex justify-between">
                       <div className="flex-1">
-                        {/* Name + Rating */}
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-gray-100">
-                            {vendor.name}
-                          </h3>
+                        {/* Vendor Header */}
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Building className="w-4 h-4 text-gray-400" />
+                              <h3 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-gray-100">
+                                {vendor.name}
+                              </h3>
+                            </div>
+                            <div className="flex items-center mt-1 text-xs text-gray-600 sm:text-sm dark:text-gray-300">
+                              <MapPin className="w-4 h-4 mr-1" />
+                              {vendor.location.city}, {vendor.location.state}
+                              <span className="mx-2 text-gray-500 dark:text-gray-400">
+                                •
+                              </span>
+                              {vendor.experience} years experience
+                            </div>
+                          </div>
+
                           <div className="flex items-center space-x-2 text-sm">
                             <Star className="w-4 h-4 text-yellow-400 fill-current" />
                             <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -201,18 +481,8 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                           </div>
                         </div>
 
-                        {/* Location + Exp */}
-                        <div className="flex items-center mt-1 text-xs text-gray-600 sm:text-sm dark:text-gray-300">
-                          <MapPin className="w-4 h-4 mr-1" />
-                          {vendor.location.city}, {vendor.location.state}
-                          <span className="mx-2 text-gray-500 dark:text-gray-400">
-                            •
-                          </span>
-                          {vendor.experience} yrs
-                        </div>
-
                         {/* Certifications */}
-                        <div className="flex flex-wrap gap-1 mt-2">
+                        <div className="flex flex-wrap gap-1 mb-3">
                           {vendor.certifications.slice(0, 3).map((cert) => (
                             <span
                               key={cert}
@@ -224,7 +494,92 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                           ))}
                         </div>
 
-                        {/* Stats */}
+                        {/* Item Selection - Only show if vendor is selected */}
+                        {isSelected && (
+                          <div className="p-3 mb-3 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                            <h4 className="flex items-center gap-2 mb-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                              <Package className="w-4 h-4" />
+                              Select Items & Specify Quantities
+                            </h4>
+                            <div className="space-y-2">
+                              {specializations.map((spec) => {
+                                const isItemSelected =
+                                  selectedData?.items.includes(spec.item);
+                                return (
+                                  <div
+                                    key={spec.item}
+                                    className="flex items-center gap-3 p-2 border border-gray-200 rounded-lg dark:border-gray-600"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isItemSelected}
+                                      onChange={(e) => {
+                                        const newItems = e.target.checked
+                                          ? [
+                                              ...(selectedData?.items || []),
+                                              spec.item,
+                                            ]
+                                          : (selectedData?.items || []).filter(
+                                              (item) => item !== spec.item
+                                            );
+                                        updateVendorItems(vendor.id, newItems);
+                                      }}
+                                      className="w-4 h-4 text-blue-600 rounded"
+                                    />
+                                    <div className="flex-1">
+                                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {spec.item}
+                                      </div>
+                                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                                        Category: {spec.category}
+                                      </div>
+                                    </div>
+                                    {isItemSelected && (
+                                      <div className="flex gap-2">
+                                        <Input
+                                          type="number"
+                                          placeholder="Qty"
+                                          className="w-20 text-sm"
+                                          value={
+                                            selectedData?.quantities[
+                                              spec.item
+                                            ] || ""
+                                          }
+                                          onChange={(e) =>
+                                            updateItemQuantity(
+                                              vendor.id,
+                                              spec.item,
+                                              parseInt(e.target.value) || 0
+                                            )
+                                          }
+                                        />
+                                        <Input
+                                          type="text"
+                                          placeholder="Specifications"
+                                          className="w-32 text-sm"
+                                          value={
+                                            selectedData?.specifications[
+                                              spec.item
+                                            ] || ""
+                                          }
+                                          onChange={(e) =>
+                                            updateItemSpecification(
+                                              vendor.id,
+                                              spec.item,
+                                              e.target.value
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Performance Stats */}
                         <div className="grid grid-cols-3 gap-3 mt-3 text-xs sm:text-sm">
                           <div>
                             <div className="text-gray-600 dark:text-gray-300">
@@ -252,7 +607,7 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                           </div>
                         </div>
 
-                        {/* Contact */}
+                        {/* Contact Info */}
                         <div className="flex items-center mt-3 space-x-3 text-xs text-gray-600 sm:text-sm dark:text-gray-300">
                           <div className="flex items-center">
                             <Phone className="w-4 h-4 mr-1" />
@@ -265,6 +620,7 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
                         </div>
                       </div>
 
+                      {/* Selection Checkbox */}
                       <div className="flex items-start ml-3">
                         <input
                           type="checkbox"
@@ -281,8 +637,9 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
 
             {/* AI Note */}
             <div className="p-4 mt-6 text-xs text-blue-700 border border-blue-200 rounded-lg bg-blue-50 dark:bg-blue-900 dark:border-blue-700 sm:text-sm dark:text-blue-200">
-              <strong>AI Match Score:</strong> Top vendors shortlisted from
-              2000+ across IndiaMART, TradeIndia, Udaan, JustDial, and more.
+              <strong>AI Match Score:</strong> Vendors matched based on your
+              project requirements. Select vendors and specify exact items with
+              quantities for accurate RFP generation.
             </div>
 
             {/* Navigation */}
@@ -305,7 +662,12 @@ export const VendorSearch: React.FC<VendorSearchProps> = ({
               >
                 Generate RFPs{" "}
                 {selectedVendors.length > 0
-                  ? `(${selectedVendors.length} selected)`
+                  ? `(${
+                      selectedVendors.length
+                    } vendors, ${selectedVendors.reduce(
+                      (total, sv) => total + sv.items.length,
+                      0
+                    )} items)`
                   : ""}{" "}
                 →
               </Button>
