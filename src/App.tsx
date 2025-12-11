@@ -1,15 +1,16 @@
 // src/App.tsx
-import React, { useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
+
 import { Provider } from "react-redux";
-import { store } from "./store";
-import { useAppDispatch, useAppSelector } from "./hooks/redux";
-import { setUser } from "./store/slices/authSlice";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./store";
+import { useAppSelector } from "./hooks/redux";
 
 import { AppProvider } from "./contexts/AppContext";
 import { ProcurementProvider } from "./contexts/ProcurementContext";
@@ -22,36 +23,19 @@ import { VendorDirectory } from "./components/features/vendors/VendorDirectory";
 
 import { Settings } from "./pages/Settings";
 import { HelpSupport } from "./pages/HelpSupport";
+
 import { Login } from "./components/auth/Login";
 import { Register } from "./components/auth/Register";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 import "./index.css";
 
-// 🌟  Auth Initializer
-const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        dispatch(setUser(JSON.parse(storedUser)));
-      } catch {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-      }
-    }
-  }, [dispatch]);
-
-  return <>{children}</>;
-};
-
-// 🌟 Route Wrapper using auth state
+// ----------------------------
+// ROUTES
+// ----------------------------
 function AppRoutes() {
   const { user } = useAppSelector((state) => state.auth);
+  console.log("Auth User in AppRoutes:", user);
 
   return (
     <Router>
@@ -61,6 +45,7 @@ function AppRoutes() {
           path="/login"
           element={!user ? <Login /> : <Navigate to="/" replace />}
         />
+
         <Route
           path="/register"
           element={!user ? <Register /> : <Navigate to="/" replace />}
@@ -68,42 +53,42 @@ function AppRoutes() {
 
         {/* Protected Routes */}
         <Route
-          path="/*"
+          path="/"
           element={
             <ProtectedRoute>
-              <MainLayout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route
-                    path="/procurement"
-                    element={<ProcurementWorkflow />}
-                  />
-                  <Route path="/analytics" element={<AnalyticsDashboard />} />
-                  <Route path="/vendors" element={<VendorDirectory />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/support" element={<HelpSupport />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </MainLayout>
+              <MainLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Child routes rendered inside MainLayout via <Outlet /> */}
+          <Route index element={<Dashboard />} />
+          <Route path="procurement" element={<ProcurementWorkflow />} />
+          <Route path="analytics" element={<AnalyticsDashboard />} />
+          <Route path="vendors" element={<VendorDirectory />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="support" element={<HelpSupport />} />
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
       </Routes>
     </Router>
   );
 }
 
-// 🌟 Final App with Providers + Redux + Auth init
+// ----------------------------
+// FINAL APP
+// ----------------------------
 function App() {
   return (
     <Provider store={store}>
-      <AuthInitializer>
+      <PersistGate loading={null} persistor={persistor}>
         <AppProvider>
           <ProcurementProvider>
             <AppRoutes />
           </ProcurementProvider>
         </AppProvider>
-      </AuthInitializer>
+      </PersistGate>
     </Provider>
   );
 }
