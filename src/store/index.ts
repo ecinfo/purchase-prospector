@@ -5,6 +5,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 
 import authReducer from './slices/authSlice';
 import profileReducer from './slices/profileSlice';
+import procurementReducer from './slices/procuremnetSlice';
 
 // Persist config
 const persistConfig = {
@@ -16,6 +17,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
     auth: authReducer,
     profile: profileReducer,
+    procurement: procurementReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
