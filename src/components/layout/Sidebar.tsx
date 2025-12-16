@@ -30,6 +30,7 @@ const navigation = [
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Vendors", href: "/vendors", icon: Users },
   { name: "Settings", href: "/settings", icon: Settings },
+  { name: "History", href: "/history", icon: FileText },
 ];
 
 const procurementSteps = [

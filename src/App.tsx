@@ -30,6 +30,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 import "./index.css";
 import { ChangePassword } from "./components/auth/ChangePassword";
+import ProjectsList from "./components/features/procurement/ProjectsList";
 
 // ----------------------------
 // ROUTES
@@ -69,6 +70,7 @@ function AppRoutes() {
           <Route path="settings" element={<Settings />} />
           <Route path="support" element={<HelpSupport />} />
           <Route path="change-password" element={<ChangePassword />} />
+          <Route path="history" element={<ProjectsList />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />

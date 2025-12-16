@@ -43,7 +43,6 @@ const Toggle: React.FC<{
 export const Settings: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { profile } = useSelector((state: any) => state.profile);
-  console.log("Profile in Settings:", profile);
   const [notifications, setNotifications] = useState({
     email: profile?.email_notification ?? true,
     bids: profile?.bid_alerts ?? true,
