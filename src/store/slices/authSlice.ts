@@ -1,4 +1,4 @@
-// src/store/slices/authSlice.ts
+
 import {
     createSlice,
     createAsyncThunk,
@@ -6,9 +6,7 @@ import {
 } from '@reduxjs/toolkit';
 import ApiHost from '../../utils/http';
 
-// ----------------------
-// Interfaces (match frontend usage)
-// ----------------------
+
 export interface User {
     id: string;
     username: string;
@@ -113,16 +111,86 @@ export const registerUser = createAsyncThunk(
     }
 );
 
-// ----------------------
-// LOGOUT
-// ----------------------
-export const logoutUser = createAsyncThunk('auth/logout', async () => {
-    return true; // Persist reducer clears state
-});
+export const changePasswordUser = createAsyncThunk(
+    "auth/changePassword",
+    async (
+        data: {
+            username: string;
+            oldPassword: string;
+            newPassword: string;
+            token: string;
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            const response = await fetch(
+                `${ApiHost}/api/users/change-password/`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Token ${data.token}`,
+                    },
+                    body: JSON.stringify({
+                        username: data.username,
+                        old_password: data.oldPassword,
+                        new_password: data.newPassword,
+                    }),
+                }
+            );
 
-// ----------------------
-// Slice
-// ----------------------
+            const result = await response.json();
+
+            if (!response.ok) {
+                return rejectWithValue(
+                    result.message || "Password update failed"
+                );
+            }
+
+            return result;
+        } catch (err: any) {
+            return rejectWithValue(err.message || "Network error");
+        }
+    }
+);
+
+
+export const logoutUser = createAsyncThunk(
+    'auth/logout',
+    async (
+        token: string,
+        { rejectWithValue }
+    ) => {
+        try {
+            const response = await fetch(
+                `${ApiHost}/api/users/logout/`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Token ${token}`,
+                    },
+                }
+            );
+
+            const result = await response.json();
+            console.log("Logout response:", result);
+            if (!response.ok) {
+                return rejectWithValue(
+                    result.message || 'Logout failed'
+                );
+            }
+
+            return true;
+        } catch (error: any) {
+            return rejectWithValue(
+                error.message || 'Network error'
+            );
+        }
+    }
+);
+
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -172,7 +240,19 @@ const authSlice = createSlice({
                 state.user = null;
                 state.token = null;
                 state.error = null;
+            })
+            .addCase(changePasswordUser.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(changePasswordUser.fulfilled, (state) => {
+                state.isLoading = false;
+            })
+            .addCase(changePasswordUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
             });
+
     },
 });
 

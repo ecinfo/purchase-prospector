@@ -29,6 +29,7 @@ import { Register } from "./components/auth/Register";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 import "./index.css";
+import { ChangePassword } from "./components/auth/ChangePassword";
 
 // ----------------------------
 // ROUTES
@@ -67,6 +68,7 @@ function AppRoutes() {
           <Route path="vendors" element={<VendorDirectory />} />
           <Route path="settings" element={<Settings />} />
           <Route path="support" element={<HelpSupport />} />
+          <Route path="change-password" element={<ChangePassword />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useProcurement } from "../../contexts/ProcurementContext";
 import { logoutUser } from "../../store/slices/authSlice";
-import { useAppDispatch } from "../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { AppContext } from "../../contexts/AppContext";
 
 const navigation = [
@@ -103,6 +103,7 @@ export const Sidebar: React.FC = () => {
   const { state, dispatch } = React.useContext(AppContext)!;
   const { state: procurementState } = useProcurement();
   const reduxDispatch = useAppDispatch();
+  const { user, token } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -119,8 +120,11 @@ export const Sidebar: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    reduxDispatch(logoutUser());
+  const handleLogout = async () => {
+    if (token) {
+      await reduxDispatch(logoutUser(token));
+    }
+
     navigate("/login", { replace: true });
   };
 
@@ -381,11 +385,11 @@ export const Sidebar: React.FC = () => {
             />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-100">
-                Rajesh Kumar
+                {user ? user.username : "Guest User"}
               </p>
-              <p className="text-xs text-gray-500 truncate dark:text-gray-400">
+              {/* <p className="text-xs text-gray-500 truncate dark:text-gray-400">
                 Purchase Manager
-              </p>
+              </p> */}
             </div>
 
             <button

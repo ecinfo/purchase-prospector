@@ -10,6 +10,8 @@ import {
   TabsTrigger,
 } from "../components/ui/Tabs";
 import { Bell, User, Shield, Database } from "lucide-react";
+import { ChangePassword } from "../components/auth/ChangePassword";
+import { useSelector } from "react-redux";
 
 // Toggle Switch Component (Dark Mode Supported)
 const Toggle: React.FC<{
@@ -39,10 +41,13 @@ const Toggle: React.FC<{
 );
 
 export const Settings: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { profile } = useSelector((state: any) => state.profile);
+  console.log("Profile in Settings:", profile);
   const [notifications, setNotifications] = useState({
-    email: true,
-    bids: true,
-    projects: true,
+    email: profile?.email_notification ?? true,
+    bids: profile?.bid_alerts ?? true,
+    projects: profile?.project_updates ?? true,
   });
 
   return (
@@ -94,8 +99,8 @@ export const Settings: React.FC = () => {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {[
-                  { label: "First Name", value: "Rajesh" },
-                  { label: "Last Name", value: "Kumar" },
+                  { label: "First Name", value: profile?.first_name || "" },
+                  { label: "Last Name", value: profile?.last_name || "" },
                 ].map((field) => (
                   <div key={field.label} className="space-y-1">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -112,10 +117,10 @@ export const Settings: React.FC = () => {
               {[
                 {
                   label: "Email",
-                  value: "rajesh.kumar@construction.com",
+                  value: profile?.email || "",
                   type: "email",
                 },
-                { label: "Phone", value: "+91 98765 43210", type: "tel" },
+                { label: "Phone", value: profile?.phone || "", type: "tel" },
               ].map((field) => (
                 <div key={field.label} className="space-y-1">
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -131,8 +136,8 @@ export const Settings: React.FC = () => {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {[
-                  { label: "Company", value: "ABC Construction Ltd." },
-                  { label: "Designation", value: "Purchase Manager" },
+                  { label: "Company", value: profile?.company_name || "" },
+                  { label: "Designation", value: profile?.designation || "" },
                 ].map((field) => (
                   <div key={field.label} className="space-y-1">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -216,6 +221,7 @@ export const Settings: React.FC = () => {
 
         {/* Security Tab */}
         <TabsContent value="security" className="mt-6 space-y-6">
+          {/* CHANGE PASSWORD CARD */}
           <Card className="dark:bg-gray-900 dark:border-gray-700">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -225,30 +231,14 @@ export const Settings: React.FC = () => {
                 Update your password regularly for security
               </p>
             </CardHeader>
+
             <CardContent className="space-y-4">
-              {[
-                { label: "Current Password", type: "password" },
-                { label: "New Password", type: "password" },
-                { label: "Confirm Password", type: "password" },
-              ].map((field) => (
-                <div key={field.label} className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {field.label}
-                  </label>
-                  <Input
-                    type={field.type}
-                    placeholder={field.label}
-                    className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
-                  />
-                </div>
-              ))}
-              <div className="flex justify-end pt-4 border-t dark:border-gray-700">
-                <Button>Update Password</Button>
-              </div>
+              <ChangePassword />
             </CardContent>
           </Card>
 
-          <Card className="dark:bg-gray-900 dark:border-gray-700">
+          {/* 2FA CARD */}
+          {/* <Card className="dark:bg-gray-900 dark:border-gray-700">
             <CardHeader>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -267,7 +257,7 @@ export const Settings: React.FC = () => {
                 </Button>
               </div>
             </CardHeader>
-          </Card>
+          </Card> */}
         </TabsContent>
 
         {/* Integrations Tab */}

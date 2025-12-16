@@ -9,12 +9,12 @@ import { Input } from "../ui/Input";
 
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { loginUser, clearError } from "../../store/slices/authSlice";
+import { store } from "../../store";
 
 export const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isLoading, error, user } = useAppSelector((state) => state.auth);
-  console.log("Auth User in Login Component:", user);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -35,8 +35,7 @@ export const Login: React.FC = () => {
     e.preventDefault();
 
     const result = await dispatch(loginUser(formData));
-    console.log("Login result:", result);
-    console.log("Redux auth state:", store.getState().auth);
+
     if (loginUser.fulfilled.match(result)) {
       navigate("/");
     }

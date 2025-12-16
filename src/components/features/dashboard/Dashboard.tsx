@@ -1,11 +1,24 @@
 // src/components/features/dashboard/Dashboard.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { StatsGrid } from "./StatsGrid";
 import { RecentProjects } from "./RecentProjects";
 import { QuickActions } from "./QuickActions";
 import { ROIMetrics } from "./ROIMetrics";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { fetchUserProfile } from "../../../store/slices/profileSlice";
 
 export const Dashboard: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const token = useAppSelector((state) => state.auth.token);
+  const profile = useAppSelector((state) => state.profile.profile);
+
+  useEffect(() => {
+    // Fetch profile only if token exists and profile is not already loaded
+    if (token) {
+      dispatch(fetchUserProfile(token));
+    }
+  }, [token, dispatch]);
+
   return (
     <div className="w-full p-4 space-y-6 sm:p-6">
       {/* Header */}
