@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Input } from "../../ui/Input";
 import { Card, CardContent } from "../../ui/Card";
 import { Button } from "../../ui/Button";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { submitProjectQualification } from "../../../store/slices/procuremnetSlice";
 
 interface UnitMix {
   "2BHK": number;
@@ -49,6 +51,18 @@ export default function QualificationForm({
     targetBuyer: "",
     projectTimeline: "",
   });
+  const dispatch = useAppDispatch();
+
+  const token =
+    useAppSelector((state) => state.auth.token) ||
+    localStorage.getItem("token");
+
+  const projectId = useAppSelector((state) => state.procurement);
+  console.log("QualificationForm rendered with projectId:", projectId);
+
+  const { qualificationSubmitting, qualificationError } = useAppSelector(
+    (state) => state.procurement
+  );
 
   const handleBasicInput = (id: string, value: string | number) =>
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -78,14 +92,50 @@ export default function QualificationForm({
       formData.complexity
     );
   };
+  const buildAnswersPayload = (data: FormData) => ({
+    basic_information: {
+      project_location: data.location,
+      built_up_area: {
+        value: Number(data.area),
+        unit: data.areaUnit,
+      },
+      construction_type: data.type,
+      estimated_budget: Number(data.budget),
+      project_timeline: Number(data.timeline),
+      project_complexity: data.complexity,
+    },
+    detailed_specifications: {
+      unit_mix: {
+        "2bhk": data.unitMix["2BHK"],
+        "3bhk": data.unitMix["3BHK"],
+        "4bhk": data.unitMix["4BHK"],
+      },
+      architectural_style: data.architecturalStyle,
+      amenities: data.amenities.map((a) => ({
+        name: a,
+        details: "",
+      })),
+      target_buyer_segment: data.targetBuyer,
+      expected_completion_timeline: data.projectTimeline,
+    },
+  });
 
-  const handleSubmit = () => {
-    setIsSubmitting(true);
-    setTimeout(() => {
-      console.log("Form submitted:", formData);
-      setIsSubmitting(false);
-      onNext(); // Call the onNext callback
-    }, 1200);
+  const handleSubmit = async () => {
+    if (!token || !projectId) return;
+
+    const answers = buildAnswersPayload(formData);
+    console.log("Submitting Qualification with answers:", answers);
+    const result = await dispatch(
+      submitProjectQualification({
+        projectId,
+        token,
+        answers,
+      })
+    );
+
+    if (submitProjectQualification.fulfilled.match(result)) {
+      onNext();
+    }
   };
 
   return (
@@ -454,29 +504,12 @@ export default function QualificationForm({
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={!isFormValid() || isSubmitting}
+              // disabled={!isFormValid() || qualificationSubmitting}
               className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300"
             >
-              {isSubmitting ? (
-                "Processing..."
-              ) : (
-                <>
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Complete Qualification
-                </>
-              )}
+              {qualificationSubmitting
+                ? "Processing..."
+                : "Complete Qualification"}
             </Button>
           </div>
         </div>
