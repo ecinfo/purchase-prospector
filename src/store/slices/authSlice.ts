@@ -12,6 +12,11 @@ export interface User {
     username: string;
     email: string | null;
     phone?: string | null;
+
+    first_name?: string;
+    last_name?: string;
+    user_role?: string;
+    company_name?: string;
 }
 
 export interface AuthState {

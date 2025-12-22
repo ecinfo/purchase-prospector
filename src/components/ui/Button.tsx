@@ -3,7 +3,7 @@ import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline" | "ghost";
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "icon";
   loading?: boolean;
   children: React.ReactNode;
 }
@@ -17,7 +17,8 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = "btn";
+  const baseClasses =
+    "inline-flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variantClasses = {
     primary: "btn-primary",
@@ -30,6 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
     sm: "btn-sm",
     md: "btn-md",
     lg: "btn-lg",
+    icon: "h-9 w-9 p-0", // 👈 REQUIRED FOR ICON BUTTONS
   };
 
   const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
@@ -37,11 +39,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button className={classes} disabled={disabled || loading} {...props}>
       {loading && (
-        <svg
-          className="animate-spin -ml-1 mr-2 h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
           <circle
             className="opacity-25"
             cx="12"
@@ -57,7 +55,7 @@ export const Button: React.FC<ButtonProps> = ({
           />
         </svg>
       )}
-      {children}
+      {!loading && children}
     </button>
   );
 };

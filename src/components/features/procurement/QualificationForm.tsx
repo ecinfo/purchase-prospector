@@ -36,7 +36,6 @@ export default function QualificationForm({
   onNext,
   onPrevious,
 }: QualificationFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     location: "",
     area: "",
@@ -57,10 +56,9 @@ export default function QualificationForm({
     useAppSelector((state) => state.auth.token) ||
     localStorage.getItem("token");
 
-  const projectId = useAppSelector((state) => state.procurement);
-  console.log("QualificationForm rendered with projectId:", projectId);
+  const projectId = useAppSelector((state) => state.procurement.project?.id);
 
-  const { qualificationSubmitting, qualificationError } = useAppSelector(
+  const { qualificationSubmitting } = useAppSelector(
     (state) => state.procurement
   );
 
@@ -81,17 +79,6 @@ export default function QualificationForm({
     setFormData({ ...formData, amenities: updated });
   };
 
-  const isFormValid = () => {
-    return (
-      formData.location.trim() &&
-      Number(formData.area) > 0 &&
-      formData.areaUnit &&
-      formData.type &&
-      Number(formData.budget) > 0 &&
-      Number(formData.timeline) > 0 &&
-      formData.complexity
-    );
-  };
   const buildAnswersPayload = (data: FormData) => ({
     basic_information: {
       project_location: data.location,

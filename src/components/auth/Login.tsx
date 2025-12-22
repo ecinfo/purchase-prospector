@@ -9,7 +9,6 @@ import { Input } from "../ui/Input";
 
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { loginUser, clearError } from "../../store/slices/authSlice";
-import { store } from "../../store";
 
 export const Login: React.FC = () => {
   const dispatch = useAppDispatch();

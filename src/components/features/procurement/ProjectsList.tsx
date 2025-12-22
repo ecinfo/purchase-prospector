@@ -113,7 +113,7 @@ const ProjectsList: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen px-6 py-8 text-white bg-gray-950">
+    <div className="min-h-screen px-6 py-8 text-white">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -209,16 +209,18 @@ const ProjectsList: React.FC = () => {
               )}
             </button>
 
-            <CardContent
-              className="p-5 cursor-pointer"
-              onClick={() => navigate(`/procurement/${project.id}`)}
-            >
-              <h3 className="mb-1 text-lg font-semibold text-white truncate">
-                {project.name}
-              </h3>
-              <p className="text-sm text-white line-clamp-2">
-                {project.description || "No description"}
-              </p>
+            <CardContent className="p-5">
+              <div
+                className="cursor-pointer"
+                onClick={() => navigate(`/procurement/${project.id}`)}
+              >
+                <h3 className="mb-1 text-lg font-semibold text-white truncate">
+                  {project.name}
+                </h3>
+                <p className="text-sm text-white line-clamp-2">
+                  {project.description || "No description"}
+                </p>
+              </div>
             </CardContent>
 
             {/* Card Actions */}
