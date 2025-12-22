@@ -10,7 +10,7 @@ import { fetchUserProfile } from "../../../store/slices/profileSlice";
 export const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
-
+  console.log("Dashboard rendered with token:", token);
   useEffect(() => {
     // Fetch profile only if token exists and profile is not already loaded
     if (token) {
