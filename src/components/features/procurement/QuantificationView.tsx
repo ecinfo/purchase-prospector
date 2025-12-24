@@ -155,10 +155,13 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
 
   // Map API data to UI state when quantification loads
   useEffect(() => {
-    if (quantification?.quant_output && quantification?.project_summary) {
+    const quantOutput = (quantification as any)?.quant_output;
+    const projectSummary = (quantification as any)?.project_summary;
+
+    if (quantOutput && projectSummary) {
       const mapped = mapQuantificationToCalculatedData(
-        quantification.quant_output,
-        quantification.project_summary
+        quantOutput,
+        projectSummary
       );
       setCalculatedData(mapped);
     }
