@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-/* eslint-disable react-hooks/static-components */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "../../ui/Card";
@@ -30,6 +29,8 @@ interface CalculatedData {
   infrastructure: {
     coveredParking: number;
     openParking: number;
+    visitorParking: number;
+    totalParking: number;
     amenities: string[];
   };
   projectDetails: {
@@ -37,8 +38,91 @@ interface CalculatedData {
     targetBuyer: string;
     projectTimeline: string;
     budgetRange: number;
+    location: string;
+    projectType: string;
   };
 }
+
+// Mapper function to convert API response to UI state
+const mapQuantificationToCalculatedData = (
+  quantData: any,
+  projectSummary: any[]
+): CalculatedData => {
+  const buildable = quantData.schema_sections?.find(
+    (s: any) => s.section_key === "buildable_area"
+  );
+
+  const unitConfig = quantData.schema_sections?.find(
+    (s: any) => s.section_key === "unit_configuration"
+  );
+
+  const parking = quantData.amenity_sections?.find(
+    (a: any) => a.name === "Parking"
+  );
+
+  // Extract project details from project_summary
+  const basicInfo = projectSummary?.find(
+    (s: any) => s.message_master__title === "Basic Information"
+  );
+  const detailedSpecs = projectSummary?.find(
+    (s: any) => s.message_master__title === "Detailed Specifications"
+  );
+
+  // Parse unit mix distribution
+  const unitMixStr = unitConfig?.fields["Unit Mix Distribution"]?.value || "";
+  const unitMixArray = unitMixStr
+    .split(",")
+    .map((t: string) => t.trim())
+    .filter(Boolean);
+
+  // Get actual counts from detailed specs
+  const unitMixCounts = detailedSpecs?.user_responses?.unit_mix || {};
+  const distribution = unitMixArray.map((type: string) => {
+    const key = type.toLowerCase().replace(/\s+/g, "");
+    return {
+      type: type.toUpperCase(),
+      count: unitMixCounts[key] || 0,
+    };
+  });
+
+  return {
+    buildableArea: {
+      total: buildable?.fields["Total Buildable Area"]?.value || 0,
+      carpet: buildable?.fields["Carpet Area"]?.value || 0,
+      common: buildable?.fields["Common Area"]?.value || 0,
+      construction: buildable?.fields["Construction Area"]?.value || 0,
+      fsi: buildable?.fields["FSI Utilization"]?.value || 0,
+    },
+    unitConfig: {
+      floors: unitConfig?.fields["Number of Floors"]?.value || 0,
+      unitsPerFloor: unitConfig?.fields["Units per Floor"]?.value || 0,
+      total: unitConfig?.fields["Total Units"]?.value || 0,
+      distribution: distribution.length > 0 ? distribution : [],
+    },
+    infrastructure: {
+      totalParking: parking?.fields["Total Parking Spaces"]?.value || 0,
+      coveredParking: parking?.fields["Covered Parking Spaces"]?.value || 0,
+      visitorParking: parking?.fields["Visitor Parking Spaces"]?.value || 0,
+      openParking:
+        (parking?.fields["Total Parking Spaces"]?.value || 0) -
+        (parking?.fields["Covered Parking Spaces"]?.value || 0),
+      amenities: quantData.amenity_sections?.map((a: any) => a.name) || [],
+    },
+    projectDetails: {
+      location: basicInfo?.user_responses?.project_location || "",
+      projectType: basicInfo?.user_responses?.construction_type || "",
+      architecturalStyle:
+        detailedSpecs?.user_responses?.architectural_style ||
+        "Modern Contemporary",
+      targetBuyer:
+        detailedSpecs?.user_responses?.target_buyer_segment || "Families",
+      projectTimeline:
+        detailedSpecs?.user_responses?.expected_completion_timeline ||
+        "18 months",
+      budgetRange: basicInfo?.user_responses?.estimated_budget || 0,
+    },
+  };
+};
 
 export const QuantificationView: React.FC<QuantificationViewProps> = ({
   onNext,
@@ -59,88 +143,76 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
     localStorage.getItem("token");
 
   const projectId = useAppSelector((state) => state.procurement.project?.id);
-  console.log("Project ID in QuantificationView:", projectId);
   const { quantification, quantificationLoading, quantificationError } =
     useAppSelector((state) => state.procurement);
-  console.log("Quantification Data from Redux:", quantification);
-  console.log("Quantification Loading:", quantificationLoading);
-  console.log("Quantification Error:", quantificationError);
+
+  // Fetch quantification data on mount
   useEffect(() => {
     if (projectId && token) {
       dispatch(fetchProjectQuantification({ projectId, token }));
     }
-  }, [projectId, token, dispatch]);
+  }, [projectId, token]);
 
+  // Map API data to UI state when quantification loads
   useEffect(() => {
-    if (requirement) {
-      // Dummy fallback + real calculation
-      const area = Number(requirement.area);
-      const unitMix = (requirement as any).unitMix || {
-        "2BHK": 0,
-        "3BHK": 0,
-        "4BHK": 0,
-      };
-      const amenities = (requirement as any).amenities || [];
-
-      const totalUnits = Object.values(unitMix).reduce(
-        (sum: number, count) => sum + Number(count),
-        0
+    if (quantification?.quant_output && quantification?.project_summary) {
+      const mapped = mapQuantificationToCalculatedData(
+        quantification.quant_output,
+        quantification.project_summary
       );
-
-      const carpetArea = Math.round(area * 0.8);
-      const commonArea = Math.round(area * 0.15);
-      const constructionArea = Math.round(area * 1.05);
-      const fsiRatio = 2.5;
-
-      const unitsPerFloor = Math.min(4, totalUnits);
-      const floors =
-        totalUnits > 0 ? Math.ceil(totalUnits / unitsPerFloor) : 10;
-
-      const distribution = [];
-      if (unitMix["2BHK"] > 0)
-        distribution.push({ type: "2 BHK", count: unitMix["2BHK"] });
-      if (unitMix["3BHK"] > 0)
-        distribution.push({ type: "3 BHK", count: unitMix["3BHK"] });
-      if (unitMix["4BHK"] > 0)
-        distribution.push({ type: "4 BHK", count: unitMix["4BHK"] });
-
-      const coveredParking = totalUnits > 0 ? totalUnits : 40;
-      const openParking = totalUnits > 0 ? Math.round(totalUnits * 0.5) : 20;
-
-      setCalculatedData({
-        buildableArea: {
-          total: area,
-          carpet: carpetArea,
-          common: commonArea,
-          construction: constructionArea,
-          fsi: fsiRatio,
-        },
-        unitConfig: {
-          floors,
-          unitsPerFloor,
-          total: totalUnits || 40,
-          distribution:
-            distribution.length > 0
-              ? distribution
-              : [{ type: "2 BHK", count: 40 }],
-        },
-        infrastructure: {
-          coveredParking,
-          openParking,
-          amenities,
-        },
-        projectDetails: {
-          architecturalStyle:
-            (requirement as any).architecturalStyle || "Modern Contemporary",
-          targetBuyer: (requirement as any).targetBuyer || "Families",
-          projectTimeline: (requirement as any).projectTimeline || "24 months",
-          budgetRange: (requirement as any).budgetRange || 0,
-        },
-      });
+      setCalculatedData(mapped);
     }
-  }, [requirement]);
+  }, [quantification]);
 
-  if (!requirement || !calculatedData) return null;
+  // Loading state
+  if (quantificationLoading) {
+    return (
+      <div className="flex items-center justify-center w-full min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="text-center">
+          <div className="inline-block w-16 h-16 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+          <p className="mt-4 text-gray-700 dark:text-gray-300">
+            Loading quantification data...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (quantificationError) {
+    return (
+      <div className="flex items-center justify-center w-full min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="p-6 text-center">
+          <div className="mb-4 text-6xl">⚠️</div>
+          <h3 className="mb-2 text-xl font-semibold text-red-600 dark:text-red-400">
+            Failed to Load Quantification
+          </h3>
+          <p className="mb-4 text-gray-600 dark:text-gray-400">
+            {quantificationError}
+          </p>
+          <Button onClick={onPrevious} variant="outline">
+            ← Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // No data state
+  if (!calculatedData) {
+    return (
+      <div className="flex items-center justify-center w-full min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="p-6 text-center">
+          <p className="text-gray-600 dark:text-gray-400">
+            No quantification data available
+          </p>
+          <Button onClick={onPrevious} variant="outline" className="mt-4">
+            ← Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const handleEdit = (section: string, field: string) => {
     setIsEditing(`${section}-${field}`);
@@ -256,8 +328,14 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {[
-                { label: "Location", val: requirement.location },
-                { label: "Project Type", val: requirement.type },
+                {
+                  label: "Location",
+                  val: calculatedData.projectDetails.location,
+                },
+                {
+                  label: "Project Type",
+                  val: calculatedData.projectDetails.projectType,
+                },
                 {
                   label: "Architectural Style",
                   val: calculatedData.projectDetails.architecturalStyle,
@@ -360,35 +438,37 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
             />
 
             {/* Distribution */}
-            <div className="p-4 mt-2 border border-blue-200 rounded-lg dark:border-blue-700 bg-blue-50 dark:bg-gray-700/50">
-              <div className="mb-3 text-xs font-semibold tracking-wide text-blue-900 uppercase dark:text-blue-300">
-                Unit Mix Distribution
-              </div>
-              <div className="flex flex-wrap items-center gap-4">
-                {calculatedData.unitConfig.distribution.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
-                  >
-                    <div className="mr-3">
-                      <div className="mb-1 text-xs text-gray-600 dark:text-gray-300">
-                        {item.type}
+            {calculatedData.unitConfig.distribution.length > 0 && (
+              <div className="p-4 mt-2 border border-blue-200 rounded-lg dark:border-blue-700 bg-blue-50 dark:bg-gray-700/50">
+                <div className="mb-3 text-xs font-semibold tracking-wide text-blue-900 uppercase dark:text-blue-300">
+                  Unit Mix Distribution
+                </div>
+                <div className="flex flex-wrap items-center gap-4">
+                  {calculatedData.unitConfig.distribution.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
+                    >
+                      <div className="mr-3">
+                        <div className="mb-1 text-xs text-gray-600 dark:text-gray-300">
+                          {item.type}
+                        </div>
+                        <div className="text-lg font-bold text-blue-900 dark:text-blue-300">
+                          {item.count}
+                        </div>
                       </div>
-                      <div className="text-lg font-bold text-blue-900 dark:text-blue-300">
-                        {item.count}
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        units
                       </div>
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      units
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Infra */}
+        {/* Infrastructure */}
         <Card className="mb-6 bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="pb-3">
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">
@@ -398,6 +478,13 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
           <CardContent className="space-y-3">
             <EditableField
               section="infrastructure"
+              field="totalParking"
+              label="Total Parking Spaces"
+              value={calculatedData.infrastructure.totalParking}
+              suffix="spaces"
+            />
+            <EditableField
+              section="infrastructure"
               field="coveredParking"
               label="Covered Parking"
               value={calculatedData.infrastructure.coveredParking}
@@ -405,9 +492,9 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
             />
             <EditableField
               section="infrastructure"
-              field="openParking"
-              label="Open Parking"
-              value={calculatedData.infrastructure.openParking}
+              field="visitorParking"
+              label="Visitor Parking"
+              value={calculatedData.infrastructure.visitorParking}
               suffix="spaces"
             />
             {calculatedData.infrastructure.amenities.length > 0 && (
@@ -437,7 +524,7 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
           <Button
             variant="outline"
             onClick={onPrevious}
-            className="w-full text-gray-900 border-gray-300 sm:w-auto dark:border-gray-600 dark:text-black-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="w-full text-gray-900 border-gray-300 sm:w-auto dark:border-gray-600 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             ← Back to Qualification
           </Button>
