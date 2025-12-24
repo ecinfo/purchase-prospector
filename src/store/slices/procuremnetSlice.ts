@@ -44,6 +44,15 @@ interface UpdateProjectPayload {
     data: Partial<Project>;
     token: string;
 }
+/* ======================================================
+   Save Quantification Types
+====================================================== */
+
+export interface SaveQuantificationPayload {
+    projectId: number;
+    token: string;
+    data: any; // quantified draft payload (server schema)
+}
 
 interface DeleteProjectPayload {
     id: number;
@@ -74,6 +83,30 @@ interface ProjectState {
     qualificationSubmitting: boolean;
     qualificationSuccess: boolean;
     qualificationError: string | null;
+
+    /* Quantification */
+    quantification: QuantificationDraft | null;
+    quantificationLoading: boolean;
+    quantificationError: string | null;
+}
+
+
+
+export interface QuantificationItem {
+    id?: number;
+    category?: string;
+    description?: string;
+    quantity?: number;
+    unit?: string;
+    rate?: number;
+    amount?: number;
+}
+
+export interface QuantificationDraft {
+    project_id: number;
+    status: "Draft" | "Final";
+    items: QuantificationItem[];
+    updated_at?: string;
 }
 
 /* ======================================================
@@ -93,7 +126,12 @@ const initialState: ProjectState = {
     qualificationSubmitting: false,
     qualificationSuccess: false,
     qualificationError: null,
+
+    quantification: null,
+    quantificationLoading: false,
+    quantificationError: null,
 };
+
 
 /* ======================================================
    Thunks
@@ -104,24 +142,29 @@ export const createProject = createAsyncThunk<
     Project,
     CreateProjectPayload,
     { rejectValue: string }
->("project/createProject", async ({ name, description, token }, { rejectWithValue }) => {
-    try {
-        const response = await axios.post(
-            `${ApiHost}/api/procurement/project/create/`,
-            { name, description },
-            { headers: getApiHeaders(token) }
-        );
-        console.log("Create Project Response:", response.data);
-        return response.data.data ?? response.data;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            return rejectWithValue(
-                error.response?.data?.message || "Project creation failed"
+>(
+    "project/createProject",
+    async ({ name, description, token }, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                `${ApiHost}/api/procurement/project/create/`,
+                { name, description },
+                { headers: getApiHeaders(token) }
             );
+
+            console.log("Create Project Response:", response.data);
+
+            return response.data.project_details as Project;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || "Project creation failed"
+                );
+            }
+            return rejectWithValue("Network error");
         }
-        return rejectWithValue("Network error");
     }
-});
+);
 
 /* -------- Fetch Projects -------- */
 export const fetchProjects = createAsyncThunk<
@@ -249,6 +292,7 @@ export const submitProjectQualification = createAsyncThunk<
             { answers },
             { headers: getApiHeaders(token) }
         );
+        console.log("submitProjectQualification Response:", response.data);
         return response.data;
     } catch (error) {
         console.log("Error in submitProjectQualification:", error);
@@ -260,6 +304,63 @@ export const submitProjectQualification = createAsyncThunk<
         return rejectWithValue("Network error");
     }
 });
+
+/* -------- Fetch Quantification (Draft) -------- */
+export const fetchProjectQuantification = createAsyncThunk<
+    QuantificationDraft,
+    { projectId: number; token: string },
+    { rejectValue: string }
+>(
+    "project/fetchProjectQuantification",
+    async ({ projectId, token }, { rejectWithValue }) => {
+        try {
+            const response = await axios.get(
+                `${ApiHost}/api/procurement/project/${projectId}/quant/fetch/`,
+                { headers: getApiHeaders(token) }
+            );
+            console.log("fetchProjectQuantification Response:", response.data);
+            return response.data;
+        } catch (error) {
+            console.log("Error in fetchProjectQuantification:", error);
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message ||
+                    "Failed to fetch quantification draft"
+                );
+            }
+            return rejectWithValue("Network error");
+        }
+    }
+);
+
+/* -------- Save / Update Quantification (Draft) -------- */
+export const saveProjectQuantification = createAsyncThunk<
+    any,
+    SaveQuantificationPayload,
+    { rejectValue: string }
+>(
+    "project/saveProjectQuantification",
+    async ({ projectId, token, data }, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                `${ApiHost}/api/procurement/project/${projectId}/quant/save/`,
+                data,
+                { headers: getApiHeaders(token) }
+            );
+            console.log("saveProjectQuantification Response:", response.data);
+            return response.data;
+        } catch (error) {
+            console.log("Error in saveProjectQuantification:", error);
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message ||
+                    "Failed to save quantification draft"
+                );
+            }
+            return rejectWithValue("Network error");
+        }
+    }
+);
 
 /* ======================================================
    Slice
@@ -288,6 +389,12 @@ const procurementSlice = createSlice({
             state.qualificationSubmitting = false;
             state.qualificationSuccess = false;
             state.qualificationError = null;
+        },
+
+        clearQuantification(state) {
+            state.quantification = null;
+            state.quantificationError = null;
+            state.quantificationLoading = false;
         },
     },
     extraReducers: (builder) => {
@@ -326,7 +433,55 @@ const procurementSlice = createSlice({
                 state.qualificationSubmitting = false;
                 state.qualificationError =
                     action.payload || "Qualification submission failed";
+            })
+            .addCase(createProject.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(createProject.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.project = action.payload;
+
+                // Add newly created project at the top of the list
+                state.projects = [action.payload, ...state.projects];
+                state.totalCount += 1;
+            })
+            .addCase(createProject.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload || "Project creation failed";
+            })
+            /* Quantification */
+            .addCase(fetchProjectQuantification.pending, (state) => {
+                state.quantificationLoading = true;
+                state.quantificationError = null;
+            })
+            .addCase(fetchProjectQuantification.fulfilled, (state, action) => {
+                state.quantificationLoading = false;
+                state.quantification = action.payload;
+            })
+            .addCase(fetchProjectQuantification.rejected, (state, action) => {
+                state.quantificationLoading = false;
+                state.quantificationError =
+                    action.payload || "Failed to fetch quantification";
+            })
+            /* Save Quantification */
+            .addCase(saveProjectQuantification.pending, (state) => {
+                state.quantificationLoading = true;
+                state.quantificationError = null;
+            })
+            .addCase(saveProjectQuantification.fulfilled, (state, action) => {
+                state.quantificationLoading = false;
+
+                // Backend usually returns updated draft
+                state.quantification = action.payload;
+            })
+            .addCase(saveProjectQuantification.rejected, (state, action) => {
+                state.quantificationLoading = false;
+                state.quantificationError =
+                    action.payload || "Failed to save quantification";
             });
+
+
     },
 });
 

@@ -7,9 +7,9 @@ import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { submitProjectQualification } from "../../../store/slices/procuremnetSlice";
 
 interface UnitMix {
-  "2BHK": number;
-  "3BHK": number;
-  "4BHK": number;
+  "2bhk": number;
+  "3bhk": number;
+  "4bhk": number;
 }
 
 interface QualificationFormProps {
@@ -44,20 +44,18 @@ export default function QualificationForm({
     budget: "",
     timeline: "",
     complexity: "",
-    unitMix: { "2BHK": 0, "3BHK": 0, "4BHK": 0 },
+    unitMix: { "2bhk": 0, "3bhk": 0, "4bhk": 0 },
     architecturalStyle: "",
     amenities: [],
     targetBuyer: "",
     projectTimeline: "",
   });
-  const dispatch = useAppDispatch();
 
+  const dispatch = useAppDispatch();
   const token =
     useAppSelector((state) => state.auth.token) ||
     localStorage.getItem("token");
-
-  const projectId = useAppSelector((state) => state.procurement.project?.id);
-
+  const projectId = useAppSelector((state) => state.procurement?.project?.id);
   const { qualificationSubmitting } = useAppSelector(
     (state) => state.procurement
   );
@@ -93,9 +91,9 @@ export default function QualificationForm({
     },
     detailed_specifications: {
       unit_mix: {
-        "2bhk": data.unitMix["2BHK"],
-        "3bhk": data.unitMix["3BHK"],
-        "4bhk": data.unitMix["4BHK"],
+        "2bhk": data.unitMix["2bhk"],
+        "3bhk": data.unitMix["3bhk"],
+        "4bhk": data.unitMix["4bhk"],
       },
       architectural_style: data.architecturalStyle,
       amenities: data.amenities.map((a) => ({
@@ -109,9 +107,7 @@ export default function QualificationForm({
 
   const handleSubmit = async () => {
     if (!token || !projectId) return;
-
     const answers = buildAnswersPayload(formData);
-    console.log("Submitting Qualification with answers:", answers);
     const result = await dispatch(
       submitProjectQualification({
         projectId,
@@ -147,7 +143,7 @@ export default function QualificationForm({
               </h2>
 
               <div className="grid gap-6 md:grid-cols-2">
-                {/* Location */}
+                {/* Location - Text Input */}
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                     Project Location *
@@ -164,12 +160,11 @@ export default function QualificationForm({
                   />
                 </div>
 
-                {/* Area */}
+                {/* Area - Text Input with Radio Units */}
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                     Total Built-up Area *
                   </label>
-
                   <div className="flex gap-2">
                     <Input
                       type="number"
@@ -179,8 +174,6 @@ export default function QualificationForm({
                       className="flex-1 dark:bg-gray-700 dark:text-gray-100"
                       required
                     />
-
-                    {/* Radio Buttons for Units */}
                     <div className="flex items-center gap-4">
                       <label className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
                         <input
@@ -195,7 +188,6 @@ export default function QualificationForm({
                         />
                         sqft
                       </label>
-
                       <label className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
                         <input
                           type="radio"
@@ -213,7 +205,7 @@ export default function QualificationForm({
                   </div>
                 </div>
 
-                {/* Type */}
+                {/* Type - Select Input */}
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                     Construction Type *
@@ -225,14 +217,14 @@ export default function QualificationForm({
                     required
                   >
                     <option value="">Select type</option>
-                    <option value="residential">Residential</option>
-                    <option value="commercial">Commercial</option>
-                    <option value="industrial">Industrial</option>
-                    <option value="mixed-use">Mixed-use</option>
+                    <option value="Residential">Residential</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Industrial">Industrial</option>
+                    <option value="Mixed-use">Mixed-use</option>
                   </select>
                 </div>
 
-                {/* Budget */}
+                {/* Budget - Text Input */}
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                     Estimated Budget (INR) *
@@ -247,7 +239,7 @@ export default function QualificationForm({
                   />
                 </div>
 
-                {/* Timeline */}
+                {/* Timeline - Text Input */}
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                     Project Timeline (months) *
@@ -264,25 +256,24 @@ export default function QualificationForm({
                   />
                 </div>
 
-                {/* Complexity */}
+                {/* Complexity - Text Input (based on JSON structure) */}
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                     Project Complexity *
                   </label>
-                  <select
+                  <Input
+                    type="text"
                     value={formData.complexity}
                     onChange={(e) =>
                       handleBasicInput("complexity", e.target.value)
                     }
-                    className="w-full px-4 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
+                    placeholder="e.g., Medium, High, Standard"
+                    className="w-full dark:bg-gray-700 dark:text-gray-100"
                     required
-                  >
-                    <option value="">Select complexity</option>
-                    <option value="standard">Standard</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="luxury">Luxury</option>
-                  </select>
+                  />
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Enter complexity level (e.g., Standard, Medium, High)
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -301,81 +292,64 @@ export default function QualificationForm({
                   Unit Mix
                 </label>
                 <div className="grid gap-3 md:grid-cols-3">
-                  {["2BHK", "3BHK", "4BHK"].map((unit) => (
+                  {["2bhk", "3bhk", "4bhk"].map((unit) => (
                     <div
                       key={unit}
                       className="flex items-center justify-between p-4 border border-gray-200 rounded-lg dark:border-gray-600"
                     >
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {unit}
+                      <span className="font-medium text-gray-900 capitalize dark:text-gray-100">
+                        {unit.toUpperCase()}
                       </span>
                       <input
                         type="number"
                         min="0"
-                        value={formData.unitMix?.[unit as keyof UnitMix] || 0}
+                        value={formData.unitMix[unit as keyof UnitMix] || 0}
                         onChange={(e) =>
                           handleUnitChange(unit, parseInt(e.target.value) || 0)
                         }
                         className="w-20 px-3 py-2 text-center text-gray-900 bg-white border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                        placeholder="0"
                       />
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Architectural Style */}
+              {/* Architectural Style - Text Input (based on JSON) */}
               <div className="mb-6">
                 <label className="block mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Architectural Style
+                  Architectural Style *
                 </label>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {[
-                    "Modern Contemporary",
-                    "Traditional Indian",
-                    "Minimalist",
-                    "Luxury Premium",
-                    "Budget-Friendly",
-                  ].map((style) => (
-                    <label
-                      key={style}
-                      className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400"
-                    >
-                      <input
-                        type="radio"
-                        name="architecturalStyle"
-                        value={style}
-                        checked={formData.architecturalStyle === style}
-                        onChange={() =>
-                          setFormData({
-                            ...formData,
-                            architecturalStyle: style,
-                          })
-                        }
-                        className="w-4 h-4 text-blue-600 dark:text-blue-400"
-                      />
-                      <span className="ml-3 text-gray-900 dark:text-gray-100">
-                        {style}
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                <Input
+                  type="text"
+                  value={formData.architecturalStyle}
+                  onChange={(e) =>
+                    handleBasicInput("architecturalStyle", e.target.value)
+                  }
+                  placeholder="e.g., Modern Contemporary"
+                  className="w-full dark:bg-gray-700 dark:text-gray-100"
+                  required
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Enter the architectural style (e.g., Modern Contemporary,
+                  Traditional, etc.)
+                </p>
               </div>
 
-              {/* Amenities */}
+              {/* Amenities - Checkboxes (Based on JSON structure) */}
               <div className="mb-6">
                 <label className="block mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Amenities
+                  Amenities (Select all that apply)
                 </label>
                 <div className="grid gap-3 md:grid-cols-2">
                   {[
+                    "Parking",
                     "Swimming Pool",
                     "Gym/Fitness Center",
                     "Clubhouse",
                     "Children's Play Area",
                     "Landscaped Garden",
                     "Security Systems",
-                    "Parking (Covered)",
-                    "Parking (Open)",
                   ].map((amenity) => (
                     <label
                       key={amenity}
@@ -396,73 +370,46 @@ export default function QualificationForm({
                 </div>
               </div>
 
-              {/* Target Buyer */}
+              {/* Target Buyer - Text Input (based on JSON structure) */}
               <div className="mb-6">
                 <label className="block mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Target Buyer Segment
+                  Target Buyer Segment *
                 </label>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {[
-                    "First-time Homebuyers",
-                    "Young Professionals",
-                    "Families",
-                    "Investors",
-                    "Premium/Luxury Buyers",
-                  ].map((buyer) => (
-                    <label
-                      key={buyer}
-                      className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400"
-                    >
-                      <input
-                        type="radio"
-                        name="targetBuyer"
-                        value={buyer}
-                        checked={formData.targetBuyer === buyer}
-                        onChange={() =>
-                          setFormData({ ...formData, targetBuyer: buyer })
-                        }
-                        className="w-4 h-4 text-blue-600 dark:text-blue-400"
-                      />
-                      <span className="ml-3 text-gray-900 dark:text-gray-100">
-                        {buyer}
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                <Input
+                  type="text"
+                  value={formData.targetBuyer}
+                  onChange={(e) =>
+                    handleBasicInput("targetBuyer", e.target.value)
+                  }
+                  placeholder="e.g., Families"
+                  className="w-full dark:bg-gray-700 dark:text-gray-100"
+                  required
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Enter target buyer segment (e.g., Families, Young
+                  Professionals, etc.)
+                </p>
               </div>
 
-              {/* Project Timeline */}
+              {/* Project Timeline - Text Input (based on JSON structure) */}
               <div>
                 <label className="block mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Expected Completion Timeline
+                  Expected Completion Timeline *
                 </label>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {["12 months", "18 months", "24 months", "30+ months"].map(
-                    (timeline) => (
-                      <label
-                        key={timeline}
-                        className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400"
-                      >
-                        <input
-                          type="radio"
-                          name="projectTimeline"
-                          value={timeline}
-                          checked={formData.projectTimeline === timeline}
-                          onChange={() =>
-                            setFormData({
-                              ...formData,
-                              projectTimeline: timeline,
-                            })
-                          }
-                          className="w-4 h-4 text-blue-600 dark:text-blue-400"
-                        />
-                        <span className="ml-3 text-gray-900 dark:text-gray-100">
-                          {timeline}
-                        </span>
-                      </label>
-                    )
-                  )}
-                </div>
+                <Input
+                  type="text"
+                  value={formData.projectTimeline}
+                  onChange={(e) =>
+                    handleBasicInput("projectTimeline", e.target.value)
+                  }
+                  placeholder="e.g., 18 months"
+                  className="w-full dark:bg-gray-700 dark:text-gray-100"
+                  required
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Enter expected completion timeline (e.g., 12 months, 18
+                  months)
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -491,7 +438,6 @@ export default function QualificationForm({
             </Button>
             <Button
               onClick={handleSubmit}
-              // disabled={!isFormValid() || qualificationSubmitting}
               className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300"
             >
               {qualificationSubmitting

@@ -5,6 +5,8 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "../../ui/Card";
 import { Button } from "../../ui/Button";
 import { useProcurement } from "../../../contexts/ProcurementContext";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { fetchProjectQuantification } from "../../../store/slices/procuremnetSlice";
 
 interface QuantificationViewProps {
   onNext: () => void;
@@ -42,7 +44,7 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
   onNext,
   onPrevious,
 }) => {
-  const { state, dispatch } = useProcurement();
+  const { state } = useProcurement();
   const requirement = state.currentProject?.requirement;
 
   const [isEditing, setIsEditing] = useState<string | null>(null);
@@ -50,6 +52,24 @@ export const QuantificationView: React.FC<QuantificationViewProps> = ({
     null
   );
   const [editValues, setEditValues] = useState<any>({});
+  const dispatch = useAppDispatch();
+
+  const token =
+    useAppSelector((state) => state.auth.token) ||
+    localStorage.getItem("token");
+
+  const projectId = useAppSelector((state) => state.procurement.project?.id);
+  console.log("Project ID in QuantificationView:", projectId);
+  const { quantification, quantificationLoading, quantificationError } =
+    useAppSelector((state) => state.procurement);
+  console.log("Quantification Data from Redux:", quantification);
+  console.log("Quantification Loading:", quantificationLoading);
+  console.log("Quantification Error:", quantificationError);
+  useEffect(() => {
+    if (projectId && token) {
+      dispatch(fetchProjectQuantification({ projectId, token }));
+    }
+  }, [projectId, token, dispatch]);
 
   useEffect(() => {
     if (requirement) {

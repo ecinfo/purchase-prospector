@@ -56,6 +56,12 @@ const RequirementInput: React.FC<RequirementInputProps> = ({ onNext }) => {
     );
 
     if (createProject.fulfilled.match(result)) {
+      // You now have full access to:
+      // createdProject.id
+      // createdProject.name
+      // createdProject.progress_status
+      // etc.
+
       onNext();
     }
   };
