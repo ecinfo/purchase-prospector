@@ -11,7 +11,9 @@ import procurementReducer from './slices/procuremnetSlice';
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['auth', 'procurement', 'profile'], // persist token only
+    whitelist: ['auth', 'procurement', 'profile'],
+    // whitelist: [],
+
 };
 
 const rootReducer = combineReducers({
