@@ -27,7 +27,12 @@ interface FormData {
   complexity: string;
   unitMix: UnitMix;
   architecturalStyle: string;
-  amenities: string[];
+  amenities: {
+    name: string;
+    details: string;
+  }[];
+  numberOfFloors: number | string;
+
   targetBuyer: string;
   projectTimeline: string;
 }
@@ -44,6 +49,7 @@ export default function QualificationForm({
     budget: "",
     timeline: "",
     complexity: "",
+    numberOfFloors: "",
     unitMix: { "2bhk": 0, "3bhk": 0, "4bhk": 0 },
     architecturalStyle: "",
     amenities: [],
@@ -68,14 +74,6 @@ export default function QualificationForm({
       ...formData,
       unitMix: { ...formData.unitMix, [unit]: value } as UnitMix,
     });
-
-  const handleCheckboxChange = (value: string) => {
-    const current = formData.amenities || [];
-    const updated = current.includes(value)
-      ? current.filter((item) => item !== value)
-      : [...current, value];
-    setFormData({ ...formData, amenities: updated });
-  };
 
   const buildAnswersPayload = (data: FormData) => ({
     basic_information: {
@@ -119,6 +117,29 @@ export default function QualificationForm({
     if (submitProjectQualification.fulfilled.match(result)) {
       onNext();
     }
+  };
+  const handleAmenityToggle = (name: string) => {
+    const exists = formData.amenities.find((a) => a.name === name);
+
+    if (exists) {
+      setFormData({
+        ...formData,
+        amenities: formData.amenities.filter((a) => a.name !== name),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        amenities: [...formData.amenities, { name, details: "" }],
+      });
+    }
+  };
+  const handleAmenityDetailsChange = (name: string, details: string) => {
+    setFormData({
+      ...formData,
+      amenities: formData.amenities.map((a) =>
+        a.name === name ? { ...a, details } : a
+      ),
+    });
   };
 
   return (
@@ -238,6 +259,22 @@ export default function QualificationForm({
                     required
                   />
                 </div>
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Number of Floors *
+                  </label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={formData.numberOfFloors}
+                    onChange={(e) =>
+                      handleBasicInput("numberOfFloors", e.target.value)
+                    }
+                    placeholder="e.g., 12"
+                    className="w-full dark:bg-gray-700 dark:text-gray-100"
+                    required
+                  />
+                </div>
 
                 {/* Timeline - Text Input */}
                 <div>
@@ -337,37 +374,51 @@ export default function QualificationForm({
               </div>
 
               {/* Amenities - Checkboxes (Based on JSON structure) */}
-              <div className="mb-6">
-                <label className="block mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Amenities (Select all that apply)
-                </label>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {[
-                    "Parking",
-                    "Swimming Pool",
-                    "Gym/Fitness Center",
-                    "Clubhouse",
-                    "Children's Play Area",
-                    "Landscaped Garden",
-                    "Security Systems",
-                  ].map((amenity) => (
-                    <label
+              <div className="grid gap-4 mb-6 md:grid-cols-2">
+                {[
+                  "Parking",
+                  "Swimming Pool",
+                  "Gym/Fitness Center",
+                  "Clubhouse",
+                  "Children's Play Area",
+                  "Landscaped Garden",
+                  "Security Systems",
+                ].map((amenity) => {
+                  const selected = formData.amenities.find(
+                    (a) => a.name === amenity
+                  );
+
+                  return (
+                    <div
                       key={amenity}
-                      className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400"
+                      className="p-4 border border-gray-200 rounded-lg dark:border-gray-600"
                     >
-                      <input
-                        type="checkbox"
-                        value={amenity}
-                        checked={formData.amenities.includes(amenity)}
-                        onChange={() => handleCheckboxChange(amenity)}
-                        className="w-4 h-4 text-blue-600 rounded dark:text-blue-400"
-                      />
-                      <span className="ml-3 text-gray-900 dark:text-gray-100">
-                        {amenity}
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!!selected}
+                          onChange={() => handleAmenityToggle(amenity)}
+                          className="w-4 h-4 text-blue-600"
+                        />
+                        <span className="ml-3 font-medium text-gray-900 dark:text-gray-100">
+                          {amenity}
+                        </span>
+                      </label>
+
+                      {selected && (
+                        <Input
+                          type="text"
+                          placeholder="Add details"
+                          value={selected.details}
+                          onChange={(e) =>
+                            handleAmenityDetailsChange(amenity, e.target.value)
+                          }
+                          className="mt-3 dark:bg-gray-700 dark:text-gray-100"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Target Buyer - Text Input (based on JSON structure) */}
