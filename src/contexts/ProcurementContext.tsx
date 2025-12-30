@@ -65,7 +65,7 @@ function procurementReducer(
   console.log(
     "[ProcurementReducer] Action Dispatched:",
     action.type,
-    action.payload
+    "payload" in action ? action.payload : undefined
   );
 
   switch (action.type) {
@@ -268,7 +268,6 @@ export function ProcurementProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useProcurement() {
   const context = useContext(ProcurementContext);
   if (!context) {
