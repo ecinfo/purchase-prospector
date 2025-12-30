@@ -7,7 +7,7 @@ const ENV: ApiEnv = 'ngrok';
 
 const HOSTS: Record<ApiEnv, string> = {
     local: 'http://localhost:3000',
-    ngrok: 'https://1c73aa230587.ngrok-free.app',
+    ngrok: 'https://f21c5352e77e.ngrok-free.app',
     production: 'https://api.example.com',
 };
 

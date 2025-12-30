@@ -214,7 +214,6 @@ export default function QualificationForm({
       estimated_budget: Number(data.budget),
       project_timeline: Number(data.timeline),
       project_complexity: data.complexity,
-      // number_of_floors: Number(data.numberOfFloors),
     },
     detailed_specifications: {
       unit_mix: {
@@ -225,6 +224,8 @@ export default function QualificationForm({
       architectural_style: data.architecturalStyle,
       amenities: data.amenities,
       target_buyer_segment: data.targetBuyer,
+      number_of_floors: Number(data.numberOfFloors),
+
       expected_completion_timeline: data.projectTimeline,
     },
   });
@@ -239,7 +240,7 @@ export default function QualificationForm({
       "budget",
       "timeline",
       "complexity",
-      // "numberOfFloors",
+      "numberOfFloors",
       "architecturalStyle",
       "targetBuyer",
       "projectTimeline",
@@ -255,6 +256,7 @@ export default function QualificationForm({
 
     if (!token || !projectId) return;
     const answers = buildAnswersPayload(formData);
+    console.log("Submitting answers:", answers);
     const result = await dispatch(
       submitProjectQualification({
         projectId,

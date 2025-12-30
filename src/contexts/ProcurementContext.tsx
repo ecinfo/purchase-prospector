@@ -62,6 +62,12 @@ function procurementReducer(
   state: ProcurementState,
   action: ProcurementAction
 ): ProcurementState {
+  console.log(
+    "[ProcurementReducer] Action Dispatched:",
+    action.type,
+    action.payload
+  );
+
   switch (action.type) {
     case "CREATE_PROJECT": {
       const newProject: ProcurementProject = {
@@ -89,6 +95,9 @@ function procurementReducer(
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+
+      console.log("[ProcurementReducer] Project Created:", newProject);
+
       return {
         ...state,
         currentProject: newProject,
@@ -98,88 +107,81 @@ function procurementReducer(
     }
 
     case "SET_CURRENT_PROJECT":
+      console.log(
+        "[ProcurementReducer] Setting Current Project:",
+        action.payload
+      );
       return { ...state, currentProject: action.payload };
 
     case "SET_CURRENT_PHASE":
+      console.log("[ProcurementReducer] Phase Changed To:", action.payload);
       return {
         ...state,
         currentPhase: action.payload,
         currentProject: state.currentProject
-          ? {
-              ...state.currentProject,
-              currentPhase: action.payload,
-            }
+          ? { ...state.currentProject, currentPhase: action.payload }
           : null,
       };
 
     case "SET_PROJECTS":
+      console.log("[ProcurementReducer] Projects Loaded:", action.payload);
       return { ...state, projects: action.payload };
 
     case "SET_LOADING":
+      console.log("[ProcurementReducer] Loading State:", action.payload);
       return { ...state, isLoading: action.payload };
 
     case "UPDATE_REQUIREMENT":
+      console.log("[ProcurementReducer] Requirement Updated:", action.payload);
       return {
         ...state,
         currentProject: state.currentProject
-          ? {
-              ...state.currentProject,
-              requirement: action.payload,
-            }
+          ? { ...state.currentProject, requirement: action.payload }
           : null,
       };
 
     case "SET_BOM":
+      console.log("[ProcurementReducer] BOM Updated:", action.payload);
       return {
         ...state,
         currentProject: state.currentProject
-          ? {
-              ...state.currentProject,
-              bom: action.payload,
-            }
+          ? { ...state.currentProject, bom: action.payload }
           : null,
       };
 
     case "SET_VENDORS":
+      console.log("[ProcurementReducer] Vendors Updated:", action.payload);
       return {
         ...state,
         currentProject: state.currentProject
-          ? {
-              ...state.currentProject,
-              vendors: action.payload,
-            }
+          ? { ...state.currentProject, vendors: action.payload }
           : null,
       };
+
     case "SET_RFPS":
+      console.log("[ProcurementReducer] RFPs Updated:", action.payload);
       return {
         ...state,
         currentProject: state.currentProject
-          ? {
-              ...state.currentProject,
-              rfps: action.payload,
-            }
+          ? { ...state.currentProject, rfps: action.payload }
           : null,
       };
 
     case "SET_BIDS":
+      console.log("[ProcurementReducer] Bids Updated:", action.payload);
       return {
         ...state,
         currentProject: state.currentProject
-          ? {
-              ...state.currentProject,
-              bids: action.payload,
-            }
+          ? { ...state.currentProject, bids: action.payload }
           : null,
       };
 
     case "SET_ANALYSIS":
+      console.log("[ProcurementReducer] Analysis Set:", action.payload);
       return {
         ...state,
         currentProject: state.currentProject
-          ? {
-              ...state.currentProject,
-              analysis: action.payload,
-            }
+          ? { ...state.currentProject, analysis: action.payload }
           : null,
       };
 
@@ -192,6 +194,8 @@ function procurementReducer(
         updatedAt: new Date().toISOString(),
       };
 
+      console.log("[ProcurementReducer] Project Completed:", completedProject);
+
       return {
         ...state,
         currentProject: completedProject,
@@ -202,6 +206,7 @@ function procurementReducer(
     }
 
     case "RESET_CURRENT_PROJECT":
+      console.log("[ProcurementReducer] Reset Current Project");
       return {
         ...state,
         currentProject: null,
@@ -217,48 +222,47 @@ export function ProcurementProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(procurementReducer, initialState);
 
   const createNewProject = (name: string, description: string) => {
-    dispatch({
-      type: "CREATE_PROJECT",
-      payload: { name, description },
-    });
+    console.log("[Context] createNewProject:", { name, description });
+    dispatch({ type: "CREATE_PROJECT", payload: { name, description } });
   };
 
   const moveToNextPhase = () => {
+    console.log("[Context] moveToNextPhase");
     if (state.currentPhase < 11) {
       dispatch({ type: "SET_CURRENT_PHASE", payload: state.currentPhase + 1 });
     }
   };
 
   const moveToPreviousPhase = () => {
+    console.log("[Context] moveToPreviousPhase");
     if (state.currentPhase > 1) {
       dispatch({ type: "SET_CURRENT_PHASE", payload: state.currentPhase - 1 });
     }
   };
 
   const completeProject = (analysis: AnalysisReport) => {
-    // First set the analysis
+    console.log("[Context] completeProject", analysis);
     dispatch({ type: "SET_ANALYSIS", payload: analysis });
-    // Then mark the project as completed
     dispatch({ type: "COMPLETE_PROJECT" });
   };
 
   const resetCurrentProject = () => {
-    dispatch({ type: "SET_CURRENT_PROJECT", payload: null });
-    dispatch({ type: "SET_CURRENT_PHASE", payload: 1 });
-  };
-
-  const value: ProcurementContextType = {
-    state,
-    dispatch,
-    createNewProject,
-    moveToNextPhase,
-    moveToPreviousPhase,
-    completeProject,
-    resetCurrentProject,
+    console.log("[Context] resetCurrentProject");
+    dispatch({ type: "RESET_CURRENT_PROJECT" });
   };
 
   return (
-    <ProcurementContext.Provider value={value}>
+    <ProcurementContext.Provider
+      value={{
+        state,
+        dispatch,
+        createNewProject,
+        moveToNextPhase,
+        moveToPreviousPhase,
+        completeProject,
+        resetCurrentProject,
+      }}
+    >
       {children}
     </ProcurementContext.Provider>
   );
@@ -267,7 +271,7 @@ export function ProcurementProvider({ children }: { children: ReactNode }) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useProcurement() {
   const context = useContext(ProcurementContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useProcurement must be used within a ProcurementProvider");
   }
   return context;
